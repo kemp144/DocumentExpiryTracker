@@ -9,6 +9,9 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
     case appLock
     case advancedInsights
     case allCurrencies
+    case csvExport
+    case pdfExport
+    case calendarIntegration
 
     var id: String { rawValue }
 
@@ -22,6 +25,9 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
         case .appLock: "Face ID lock"
         case .advancedInsights: "Advanced insights"
         case .allCurrencies: "All currencies"
+        case .csvExport: "CSV export"
+        case .pdfExport: "PDF export"
+        case .calendarIntegration: "Calendar integration"
         }
     }
 
@@ -43,6 +49,12 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
             "Understand recurring costs, renewal load, and what needs attention next."
         case .allCurrencies:
             "Track costs in the currency that matches your subscriptions and contracts."
+        case .csvExport:
+            "Export renewals and tracked items as CSV for spreadsheets and backups."
+        case .pdfExport:
+            "Generate clean PDF summaries for documents, warranties, and contracts."
+        case .calendarIntegration:
+            "Send renewals and expiration dates directly to Apple Calendar."
         }
     }
 
@@ -56,6 +68,9 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
         case .appLock: "faceid"
         case .advancedInsights: "chart.bar.xaxis"
         case .allCurrencies: "creditcard.fill"
+        case .csvExport: "tablecells"
+        case .pdfExport: "doc.richtext"
+        case .calendarIntegration: "calendar.badge.plus"
         }
     }
 }
@@ -71,6 +86,9 @@ enum PaywallContext: String, Identifiable {
     case appLock
     case insights
     case currencies
+    case csvExport
+    case pdfExport
+    case calendarIntegration
 
     var id: String { rawValue }
 
@@ -96,6 +114,12 @@ enum PaywallContext: String, Identifiable {
             "Unlock Advanced Insights"
         case .currencies:
             "Unlock All Currencies"
+        case .csvExport:
+            "Unlock CSV Export"
+        case .pdfExport:
+            "Unlock PDF Export"
+        case .calendarIntegration:
+            "Unlock Calendar Integration"
         }
     }
 
@@ -121,6 +145,12 @@ enum PaywallContext: String, Identifiable {
             "Go beyond the basics with recurring cost analysis, category breakdowns, and a clearer view of what is due next."
         case .currencies:
             "Track recurring costs in the currency that fits the service, contract, or policy you are managing."
+        case .csvExport:
+            "Export your renewals and tracked items to CSV. Useful for insurance, warranties, contracts, and subscriptions."
+        case .pdfExport:
+            "Create shareable PDF summaries for documents, warranties, and contracts. Keep clean records of the things you track."
+        case .calendarIntegration:
+            "Send renewals and expiration dates to Apple Calendar so important due dates appear alongside the rest of your schedule."
         }
     }
 
@@ -151,8 +181,14 @@ enum PaywallContext: String, Identifiable {
             [.advancedInsights, .widgets, .multipleReminders, .unlimitedItems]
         case .currencies:
             [.allCurrencies, .advancedInsights, .unlimitedItems, .multipleReminders]
+        case .csvExport:
+            [.csvExport, .pdfExport, .calendarIntegration, .advancedInsights]
+        case .pdfExport:
+            [.pdfExport, .csvExport, .calendarIntegration, .attachments]
+        case .calendarIntegration:
+            [.calendarIntegration, .pdfExport, .csvExport, .multipleReminders]
         case .softUpgrade, .general:
-            [.unlimitedItems, .multipleReminders, .widgets, .cloudSync, .attachments, .appLock, .advancedInsights, .allCurrencies]
+            [.unlimitedItems, .multipleReminders, .widgets, .cloudSync, .attachments, .appLock, .csvExport, .pdfExport, .calendarIntegration, .advancedInsights, .allCurrencies]
         }
     }
 }
@@ -170,10 +206,7 @@ enum FeatureGate {
     }
 
     static func canUse(_ feature: PremiumFeature, isPro: Bool) -> Bool {
-        switch feature {
-        case .unlimitedItems, .multipleReminders, .widgets, .cloudSync, .attachments, .appLock, .advancedInsights, .allCurrencies:
-            return isPro
-        }
+        isPro
     }
 
     static func availableCurrencies(isPro: Bool, locale: Locale = .current) -> [String] {

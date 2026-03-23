@@ -564,9 +564,50 @@ private struct FlexibleChipLayout<Content: View>: View {
     @ViewBuilder let content: Content
 
     var body: some View {
-        VStack(alignment: .leading, spacing: lineSpacing) {
+        ChipFlowLayout(spacing: spacing, lineSpacing: lineSpacing) {
             content
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct ChipFlowLayout: Layout {
+    var spacing: CGFloat
+    var lineSpacing: CGFloat
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let availableWidth = proposal.width ?? 320
+        var height: CGFloat = 0
+        var rowWidth: CGFloat = 0
+        var rowHeight: CGFloat = 0
+        for (i, subview) in subviews.enumerated() {
+            let size = subview.sizeThatFits(.unspecified)
+            if rowWidth + size.width > availableWidth, rowWidth > 0 {
+                height += rowHeight + lineSpacing
+                rowWidth = 0
+                rowHeight = 0
+            }
+            rowWidth += size.width + (i < subviews.count - 1 ? spacing : 0)
+            rowHeight = max(rowHeight, size.height)
+        }
+        height += rowHeight
+        return CGSize(width: availableWidth, height: height)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var x = bounds.minX
+        var y = bounds.minY
+        var rowHeight: CGFloat = 0
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if x + size.width > bounds.maxX, x > bounds.minX {
+                x = bounds.minX
+                y += rowHeight + lineSpacing
+                rowHeight = 0
+            }
+            subview.place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(size))
+            x += size.width + spacing
+            rowHeight = max(rowHeight, size.height)
+        }
     }
 }

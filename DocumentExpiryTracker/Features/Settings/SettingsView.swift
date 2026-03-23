@@ -1,3 +1,4 @@
+import QuickLook
 import StoreKit
 import SwiftData
 import SwiftUI
@@ -17,6 +18,9 @@ struct SettingsView: View {
     @State private var statusMessage: String?
     @State private var showingAbout = false
     @State private var showingResetConfirmation = false
+    @State private var shareItems: [Any] = []
+    @State private var showingShareSheet = false
+    @State private var previewDocument: PreviewDocument?
 
     private var iCloudStatus: ICloudSyncStatus {
         ICloudSyncStatusService.status(isProUnlocked: purchaseManager.isProUnlocked)
@@ -33,10 +37,12 @@ struct SettingsView: View {
                         .font(.system(size: 15))
                         .foregroundStyle(AppTheme.textSecondary)
                 }
+                .padding(.horizontal, 16)
 
                 privacyHero
                 notificationsSection
                 preferencesSection
+                productivitySection
                 premiumSection
                 privacySection
                 supportSection
@@ -49,6 +55,7 @@ struct SettingsView: View {
                         .font(.system(size: 13))
                         .foregroundStyle(AppTheme.textSecondary)
                         .padding(.top, 4)
+                        .padding(.horizontal, 16)
                 }
 
                 VStack(spacing: 4) {
@@ -62,7 +69,6 @@ struct SettingsView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.top, 16)
             }
-            .padding(.horizontal, 16)
             .padding(.top, 16)
             .padding(.bottom, 120)
         }
@@ -96,6 +102,12 @@ struct SettingsView: View {
                     }
                 }
             }
+        }
+        .sheet(item: $previewDocument) { document in
+            AttachmentPreviewController(url: document.url)
+        }
+        .sheet(isPresented: $showingShareSheet) {
+            ShareSheet(items: shareItems)
         }
         .onAppear {
             appLockManager.refreshAvailability()
@@ -141,6 +153,7 @@ struct SettingsView: View {
         .padding(22)
         .background(AppTheme.cardGradient)
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .padding(.horizontal, 16)
     }
 
     private func bulletPoint(_ text: String) -> some View {
@@ -156,64 +169,23 @@ struct SettingsView: View {
 
     private var notificationsSection: some View {
         settingsCard(title: "Notifications") {
-            settingsRow(
-                symbol: "bell.fill",
-                title: "Status",
-                subtitle: notificationManager.summaryMessage,
-                value: notificationManager.summaryTitle
-            )
-
-            if notificationManager.authorizationStatus == .denied {
-                Divider().overlay(AppTheme.border)
-                Button {
-                    openAppSettings()
-                } label: {
-                    settingsRow(
-                        symbol: "arrow.up.forward.app.fill",
-                        title: "Open iPhone Settings",
-                        subtitle: "Turn notifications back on for timely reminders."
-                    )
-                }
-                .buttonStyle(.plain)
+            Button {
+                openAppSettings()
+            } label: {
+                settingsRow(
+                    symbol: "bell.fill",
+                    title: "Status",
+                    subtitle: notificationManager.summaryMessage,
+                    value: notificationManager.summaryTitle
+                )
             }
-
-            Divider().overlay(AppTheme.border)
-            settingsRow(
-                symbol: "clock.badge",
-                title: "Reminder options",
-                subtitle: "Same day, 1 day, 3 days, 7 days, or 30 days before an item is due."
-            )
+            .buttonStyle(.plain)
         }
+        .padding(.horizontal, 16)
     }
 
     private var preferencesSection: some View {
         settingsCard(title: "Preferences") {
-            HStack(spacing: 12) {
-                leadingIcon(symbol: "circle.lefthalf.filled")
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Appearance")
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(AppTheme.textPrimary)
-                    Text("Choose how the app should look on your device.")
-                        .font(.system(size: 13))
-                        .foregroundStyle(AppTheme.textSecondary)
-                }
-                Spacer()
-                Picker("Appearance", selection: Binding(
-                    get: { settings.appearanceMode },
-                    set: { settings.appearanceMode = $0 }
-                )) {
-                    ForEach(AppearanceMode.allCases) { mode in
-                        Text(mode.title).tag(mode)
-                    }
-                }
-                .pickerStyle(.menu)
-                .tint(AppTheme.primary)
-            }
-            .padding(16)
-
-            Divider().overlay(AppTheme.border)
-
             HStack(spacing: 12) {
                 leadingIcon(symbol: "dollarsign.circle.fill")
                 VStack(alignment: .leading, spacing: 4) {
@@ -258,6 +230,64 @@ struct SettingsView: View {
             }
             .padding(16)
         }
+        .padding(.horizontal, 16)
+    }
+
+    private var productivitySection: some View {
+        settingsCard(title: "Productivity") {
+            Button {
+                if purchaseManager.isProUnlocked {
+                    exportPDF(items: allItems)
+                } else {
+                    onUpgradeTapped(.pdfExport)
+                }
+            } label: {
+                settingsRow(
+                    symbol: "doc.richtext",
+                    title: "PDF Export",
+                    subtitle: "Generate a clean PDF summary of all tracked items.",
+                    value: purchaseManager.isProUnlocked ? "Export" : "Pro"
+                )
+            }
+            .buttonStyle(.plain)
+
+            Divider().overlay(AppTheme.border)
+
+            Button {
+                if purchaseManager.isProUnlocked {
+                    exportCSV(items: allItems)
+                } else {
+                    onUpgradeTapped(.csvExport)
+                }
+            } label: {
+                settingsRow(
+                    symbol: "tablecells",
+                    title: "CSV Export",
+                    subtitle: "Export your records in spreadsheet format.",
+                    value: purchaseManager.isProUnlocked ? "Export" : "Pro"
+                )
+            }
+            .buttonStyle(.plain)
+
+            Divider().overlay(AppTheme.border)
+            
+            Button {
+                if purchaseManager.isProUnlocked {
+                    statusMessage = "Add to Calendar is available from any item's detail screen."
+                } else {
+                    onUpgradeTapped(.calendarIntegration)
+                }
+            } label: {
+                settingsRow(
+                    symbol: "calendar.badge.plus",
+                    title: "Calendar Integration",
+                    subtitle: "Send upcoming renewals directly to Apple Calendar.",
+                    value: purchaseManager.isProUnlocked ? "Ready" : "Pro"
+                )
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 16)
     }
 
     private var premiumSection: some View {
@@ -352,6 +382,7 @@ struct SettingsView: View {
             .buttonStyle(.plain)
             .accessibilityIdentifier("settings_restore")
         }
+        .padding(.horizontal, 16)
     }
 
     private var privacySection: some View {
@@ -368,6 +399,7 @@ struct SettingsView: View {
                 subtitle: "There is no sign-in, no ads, and no third-party tracking."
             )
         }
+        .padding(.horizontal, 16)
     }
 
     private var supportSection: some View {
@@ -397,6 +429,7 @@ struct SettingsView: View {
             }
             .buttonStyle(.plain)
         }
+        .padding(.horizontal, 16)
     }
 
     #if DEBUG
@@ -470,6 +503,7 @@ struct SettingsView: View {
             }
             .buttonStyle(.plain)
         }
+        .padding(.horizontal, 16)
     }
 
     private func generateSampleData() {
@@ -623,5 +657,72 @@ struct SettingsView: View {
     private func openAppSettings() {
         guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
         openURL(url)
+    }
+
+    private func exportCSV(items: [TrackedItem]) {
+        guard purchaseManager.isProUnlocked else {
+            onUpgradeTapped(.csvExport)
+            return
+        }
+        let url = CSVExportService.temporaryFile(for: items)
+        shareItems = [url]
+        showingShareSheet = true
+    }
+
+    private func exportPDF(items: [TrackedItem]) {
+        guard purchaseManager.isProUnlocked else {
+            onUpgradeTapped(.pdfExport)
+            return
+        }
+        let url = PDFExportService.allItemsFile(items: items)
+        let document = PreviewDocument(url: url)
+        self.previewDocument = document
+    }
+}
+
+private struct PreviewDocument: Identifiable {
+    let id = UUID()
+    let url: URL
+}
+
+private struct ShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
+private struct AttachmentPreviewController: UIViewControllerRepresentable {
+    let url: URL
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(url: url)
+    }
+
+    func makeUIViewController(context: Context) -> QLPreviewController {
+        let controller = QLPreviewController()
+        controller.dataSource = context.coordinator
+        return controller
+    }
+
+    func updateUIViewController(_ controller: QLPreviewController, context: Context) {}
+
+    final class Coordinator: NSObject, QLPreviewControllerDataSource {
+        let url: URL
+
+        init(url: URL) {
+            self.url = url
+        }
+
+        func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
+            1
+        }
+
+        func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
+            url as NSURL
+        }
     }
 }

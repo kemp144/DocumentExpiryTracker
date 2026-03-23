@@ -36,7 +36,9 @@ struct ItemDraft {
     var normalizedAmount: Double? {
         let text = amountText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return nil }
-        return Double(text)
+        // Try direct parse first (handles "9.99"), then locale-aware comma separator (handles "9,99")
+        if let value = Double(text) { return value }
+        return Double(text.replacingOccurrences(of: ",", with: "."))
     }
 
     var isValid: Bool {

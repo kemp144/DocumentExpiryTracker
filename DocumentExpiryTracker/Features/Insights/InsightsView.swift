@@ -161,10 +161,10 @@ struct InsightsView: View {
                 statTile(title: "Due Soon", value: "\(ItemAnalytics.dueSoonItems(from: items).count)")
                 statTile(title: "Expired", value: "\(ItemAnalytics.expiredItems(from: items).count)")
                 statTile(
-                    title: includePremiumMetrics ? "Monthly Total" : "Plan",
+                    title: includePremiumMetrics ? "Monthly Total" : "Recurring",
                     value: includePremiumMetrics
                         ? AppFormatters.formatMultiCurrency(totals: ItemAnalytics.monthlyRecurringTotal(from: items), compact: true)
-                        : "Free"
+                        : "\(activeItems.filter(\.isRecurring).count)"
                 )
             }
         }

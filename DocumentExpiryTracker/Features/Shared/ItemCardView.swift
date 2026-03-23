@@ -7,14 +7,12 @@ struct ItemCardView: View {
         case status(ItemStatus, String)
         case amount(Double, String)
         case recurring(String)
-        case category(String)
-        
+
         var id: String {
             switch self {
             case .status(let status, let text): "status_\(status.rawValue)_\(text)"
             case .amount(let val, let cur): "amount_\(val)_\(cur)"
             case .recurring(let val): "rec_\(val)"
-            case .category(let val): "cat_\(val)"
             }
         }
     }
@@ -54,21 +52,8 @@ struct ItemCardView: View {
                 }
 
                 HStack(spacing: 6) {
-                    let chips = buildChips(status: status)
-                    let displayChips = chips.prefix(3)
-                    
-                    ForEach(displayChips) { chip in
+                    ForEach(buildChips(status: status)) { chip in
                         chipView(for: chip)
-                    }
-                    
-                    if chips.count > 3 {
-                        Text("+\(chips.count - 3)")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundStyle(AppTheme.textSecondary)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(AppTheme.fillSoft)
-                            .clipShape(Capsule())
                     }
                 }
             }
@@ -85,14 +70,12 @@ struct ItemCardView: View {
     private func buildChips(status: ItemStatus) -> [Chip] {
         var chips: [Chip] = []
         chips.append(.status(status, ItemAnalytics.countdownText(for: item)))
-        
         if let amount = item.amount {
             chips.append(.amount(amount, item.currencyCode))
         }
         if item.isRecurring {
             chips.append(.recurring(item.recurringInterval.title))
         }
-        chips.append(.category(item.category.title))
         return chips
     }
     
@@ -116,14 +99,6 @@ struct ItemCardView: View {
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
                 .background(AppTheme.purple.opacity(0.3))
-                .clipShape(Capsule())
-        case .category(let text):
-            Text(text)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(AppTheme.textSecondary)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(AppTheme.fillSoft)
                 .clipShape(Capsule())
         }
     }

@@ -1,3 +1,4 @@
+import QuickLook
 import SwiftUI
 import SwiftData
 
@@ -14,6 +15,10 @@ struct ItemsView: View {
     @State private var selectedStatus: ItemStatus?
     @State private var sortOption: ItemSortOption = .soonest
     @State private var itemPendingDelete: TrackedItem?
+    @State private var paywallContext: PaywallContext?
+    @State private var shareItems: [Any] = []
+    @State private var showingShareSheet = false
+    @State private var previewDocument: PreviewDocument?
 
     private var filteredItems: [TrackedItem] {
         let searched = items.filter { item in
@@ -36,8 +41,8 @@ struct ItemsView: View {
                 if items.isEmpty {
                     EmptyStateView(
                         systemImage: "doc.badge.plus",
-                        title: "No items yet",
-                        message: "Start tracking your documents, subscriptions, and renewals.",
+                        title: "Nothing tracked yet",
+                        message: "Start tracking renewals, subscriptions, warranties, contracts, and insurance in one place.",
                         actionTitle: "Add First Item",
                         action: onAddTapped
                     )
@@ -82,6 +87,15 @@ struct ItemsView: View {
         }
         .background(AppTheme.background.ignoresSafeArea())
         .navigationBarHidden(true)
+        .sheet(item: $paywallContext) { context in
+            PaywallView(context: context)
+        }
+        .sheet(item: $previewDocument) { document in
+            AttachmentPreviewController(url: document.url)
+        }
+        .sheet(isPresented: $showingShareSheet) {
+            ShareSheet(items: shareItems)
+        }
         .alert("Delete Item?", isPresented: Binding(get: { itemPendingDelete != nil }, set: { if !$0 { itemPendingDelete = nil } })) {
             Button("Delete", role: .destructive) {
                 if let itemPendingDelete { delete(itemPendingDelete) }
@@ -145,7 +159,10 @@ struct ItemsView: View {
                     }
                 }
             }
+            .padding(.trailing, 16)
         }
+        .padding(.horizontal, -16)
+        .padding(.leading, 16)
     }
 
     private var filterSortHeader: some View {
@@ -154,6 +171,43 @@ struct ItemsView: View {
                 .font(.system(size: 14))
                 .foregroundStyle(AppTheme.textSecondary)
             Spacer()
+
+            // Export menu
+            Menu {
+                Section("Export Current Results") {
+                    Button {
+                        exportCSV(items: filteredItems)
+                    } label: {
+                        Label("Export as CSV", systemImage: "tablecells")
+                    }
+                    Button {
+                        exportPDF(items: filteredItems)
+                    } label: {
+                        Label("Export as PDF", systemImage: "doc.richtext")
+                    }
+                }
+                Section("Export All Items") {
+                    Button {
+                        exportCSV(items: Array(items))
+                    } label: {
+                        Label("All Items — CSV", systemImage: "tablecells")
+                    }
+                    Button {
+                        exportPDF(items: Array(items))
+                    } label: {
+                        Label("All Items — PDF", systemImage: "doc.richtext")
+                    }
+                }
+            } label: {
+                Image(systemName: "square.and.arrow.up")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(AppTheme.primary)
+                    .frame(width: 34, height: 34)
+                    .background(AppTheme.primary.opacity(0.1))
+                    .clipShape(Circle())
+            }
+
+            // Filter & sort menu
             Menu {
                 Section("Status Filter") {
                     Button(selectedStatus == nil ? "✓ Any Status" : "Any Status") { selectedStatus = nil }
@@ -182,6 +236,25 @@ struct ItemsView: View {
             }
         }
         .padding(.top, 4)
+    }
+
+    private func exportCSV(items: [TrackedItem]) {
+        guard purchaseManager.isProUnlocked else {
+            paywallContext = .csvExport
+            return
+        }
+        let url = CSVExportService.temporaryFile(for: items)
+        shareItems = [url]
+        showingShareSheet = true
+    }
+
+    private func exportPDF(items: [TrackedItem]) {
+        guard purchaseManager.isProUnlocked else {
+            paywallContext = .pdfExport
+            return
+        }
+        let url = PDFExportService.allItemsFile(items: items)
+        previewDocument = PreviewDocument(url: url)
     }
 
     private func filterChip(label: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
@@ -216,5 +289,52 @@ struct ItemsView: View {
         try? modelContext.save()
         WidgetSnapshotService.sync(context: modelContext, isProUnlocked: purchaseManager.isProUnlocked)
         itemPendingDelete = nil
+    }
+}
+
+private struct PreviewDocument: Identifiable {
+    let id = UUID()
+    let url: URL
+}
+
+private struct ShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+
+private struct AttachmentPreviewController: UIViewControllerRepresentable {
+    let url: URL
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(url: url)
+    }
+
+    func makeUIViewController(context: Context) -> QLPreviewController {
+        let controller = QLPreviewController()
+        controller.dataSource = context.coordinator
+        return controller
+    }
+
+    func updateUIViewController(_ controller: QLPreviewController, context: Context) {}
+
+    final class Coordinator: NSObject, QLPreviewControllerDataSource {
+        let url: URL
+
+        init(url: URL) {
+            self.url = url
+        }
+
+        func numberOfPreviewItems(in controller: QLPreviewController) -> Int {
+            1
+        }
+
+        func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
+            url as NSURL
+        }
     }
 }

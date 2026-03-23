@@ -61,28 +61,6 @@ struct HomeView: View {
                             .buttonStyle(.plain)
                         }
                     }
-
-                    Button {
-                        onAddTapped()
-                    } label: {
-                        HStack {
-                            Spacer()
-                            Image(systemName: "plus")
-                                .font(.system(size: 16, weight: .semibold))
-                            Text("Add New Item")
-                                .font(.system(size: 15, weight: .medium))
-                            Spacer()
-                        }
-                        .foregroundStyle(AppTheme.primary)
-                        .padding(.vertical, 16)
-                    }
-                    .background(AppTheme.elevated)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .stroke(AppTheme.border, lineWidth: 1)
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                    .accessibilityIdentifier("home_add")
                 }
             }
             .padding(.horizontal, 16)

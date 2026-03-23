@@ -208,9 +208,9 @@ enum ItemAnalytics {
     static func sort(items: [TrackedItem], by option: ItemSortOption) -> [TrackedItem] {
         switch option {
         case .soonest:
-            items.sorted { $0.dueDate < $1.dueDate }
+            items.sorted { effectiveDueDate(for: $0) < effectiveDueDate(for: $1) }
         case .latest:
-            items.sorted { $0.dueDate > $1.dueDate }
+            items.sorted { effectiveDueDate(for: $0) > effectiveDueDate(for: $1) }
         case .title:
             items.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
         case .recentlyUpdated:

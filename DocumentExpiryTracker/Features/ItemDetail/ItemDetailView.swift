@@ -1,3 +1,4 @@
+import EventKitUI
 import PhotosUI
 import QuickLook
 import SwiftUI
@@ -19,6 +20,15 @@ struct ItemDetailView: View {
     @State private var showingFileImporter = false
     @State private var previewDocument: PreviewDocument?
 
+    // Export state
+    @State private var shareItems: [Any] = []
+    @State private var showingShareSheet = false
+
+    // Calendar state
+    @StateObject private var calendarService = CalendarService()
+    @State private var showingCalendarEditor = false
+    @State private var calendarSuccessMessage: String?
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 16) {
@@ -26,6 +36,7 @@ struct ItemDetailView: View {
                 detailsCard
                 attachmentsCard
                 if !item.notesText.isEmpty { notesCard }
+                exportActionsCard
                 actionButtons
             }
             .padding(.horizontal, 16)
@@ -52,6 +63,24 @@ struct ItemDetailView: View {
         .sheet(item: $previewDocument) { document in
             AttachmentPreviewController(url: document.url)
         }
+        .sheet(isPresented: $showingShareSheet) {
+            ShareSheet(items: shareItems)
+        }
+        .sheet(isPresented: $showingCalendarEditor) {
+            NavigationStack {
+                EventEditView(
+                    event: calendarService.buildEvent(for: item),
+                    store: calendarService.eventStore
+                ) { action in
+                    showingCalendarEditor = false
+                    if action == .saved {
+                        calendarSuccessMessage = "Event added to Calendar."
+                    }
+                }
+                .ignoresSafeArea()
+                .navigationBarHidden(true)
+            }
+        }
         .fileImporter(
             isPresented: $showingFileImporter,
             allowedContentTypes: [.pdf, .image, .text, .item],
@@ -73,6 +102,11 @@ struct ItemDetailView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text(errorMessage ?? "")
+        }
+        .alert("Added to Calendar", isPresented: Binding(get: { calendarSuccessMessage != nil }, set: { if !$0 { calendarSuccessMessage = nil } })) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(calendarSuccessMessage ?? "")
         }
     }
 
@@ -229,6 +263,178 @@ struct ItemDetailView: View {
         .appCardStyle()
     }
 
+    // MARK: - Export Actions Card
+
+    private var exportActionsCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Export & Calendar")
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(AppTheme.textPrimary)
+
+            VStack(spacing: 0) {
+                exportActionRow(
+                    symbol: "calendar.badge.plus",
+                    title: "Add to Calendar",
+                    subtitle: calendarRowSubtitle,
+                    isPro: true
+                ) {
+                    handleAddToCalendar()
+                }
+
+                Divider()
+                    .overlay(AppTheme.border)
+                    .padding(.leading, 56)
+
+                exportActionRow(
+                    symbol: "doc.richtext",
+                    title: "Export as PDF",
+                    subtitle: "Save or share a summary of this item",
+                    isPro: true
+                ) {
+                    handleExportSinglePDF()
+                }
+
+                Divider()
+                    .overlay(AppTheme.border)
+                    .padding(.leading, 56)
+
+                exportActionRow(
+                    symbol: "tablecells",
+                    title: "Export as CSV",
+                    subtitle: "Export this item's data in spreadsheet format",
+                    isPro: true
+                ) {
+                    handleExportSingleCSV()
+                }
+            }
+            .background(AppTheme.elevated)
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(AppTheme.border, lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        }
+    }
+
+    private var calendarRowSubtitle: String {
+        switch calendarService.authorizationStatus {
+        case .denied, .restricted:
+            return "Calendar access denied — tap to open Settings"
+        case .fullAccess:
+            return "Add this item's due date to Apple Calendar"
+        default:
+            return "Add this item's due date to Apple Calendar"
+        }
+    }
+
+    private func exportActionRow(
+        symbol: String,
+        title: String,
+        subtitle: String,
+        isPro: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                Image(systemName: symbol)
+                    .font(.system(size: 18))
+                    .foregroundStyle(AppTheme.textSecondary)
+                    .frame(width: 36, height: 36)
+                    .background(AppTheme.fillSoft)
+                    .clipShape(Circle())
+
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack(spacing: 6) {
+                        Text(title)
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundStyle(AppTheme.textPrimary)
+                        if isPro && !purchaseManager.isProUnlocked {
+                            Text("PRO")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(AppTheme.primary)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(AppTheme.primary.opacity(0.12))
+                                .clipShape(Capsule())
+                        }
+                    }
+                    Text(subtitle)
+                        .font(.system(size: 12))
+                        .foregroundStyle(AppTheme.textSecondary)
+                        .multilineTextAlignment(.leading)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(AppTheme.textMuted)
+            }
+            .padding(16)
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Export Handlers
+
+    private func handleAddToCalendar() {
+        guard purchaseManager.isProUnlocked else {
+            paywallContext = .calendarIntegration
+            return
+        }
+
+        calendarService.refreshStatus()
+
+        switch calendarService.authorizationStatus {
+        case .denied, .restricted:
+            guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+            UIApplication.shared.open(url)
+        case .fullAccess:
+            showingCalendarEditor = true
+        case .notDetermined:
+            Task {
+                let granted = await calendarService.requestAccess()
+                if granted {
+                    showingCalendarEditor = true
+                } else {
+                    errorMessage = "Calendar access was not granted. You can enable it in Settings."
+                }
+            }
+        default:
+            // writeOnly or other — request full access
+            Task {
+                let granted = await calendarService.requestAccess()
+                if granted {
+                    showingCalendarEditor = true
+                } else {
+                    errorMessage = "Calendar access was not granted. You can enable it in Settings."
+                }
+            }
+        }
+    }
+
+    private func handleExportSinglePDF() {
+        guard purchaseManager.isProUnlocked else {
+            paywallContext = .pdfExport
+            return
+        }
+        let url = PDFExportService.singleItemFile(for: item)
+        // Show QuickLook preview directly for generated PDF
+        previewDocument = PreviewDocument(url: url)
+    }
+
+    private func handleExportSingleCSV() {
+        guard purchaseManager.isProUnlocked else {
+            paywallContext = .csvExport
+            return
+        }
+        let url = CSVExportService.temporaryFile(for: [item])
+        shareItems = [url]
+        showingShareSheet = true
+    }
+
+    // MARK: - Action Buttons
+
     private var actionButtons: some View {
         VStack(spacing: 10) {
             Button {
@@ -384,12 +590,26 @@ private struct AttachmentRowView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: attachment.kind.symbolName)
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(AppTheme.primary)
-                .frame(width: 40, height: 40)
-                .background(AppTheme.primary.opacity(0.12))
-                .clipShape(Circle())
+            Button(action: onPreview) {
+                if attachment.kind == .image,
+                   let data = try? Data(contentsOf: AttachmentStorage.fileURL(for: attachment)),
+                   let uiImage = UIImage(data: data) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 44, height: 44)
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(AppTheme.border, lineWidth: 1))
+                } else {
+                    Image(systemName: attachment.kind.symbolName)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(AppTheme.primary)
+                        .frame(width: 44, height: 44)
+                        .background(AppTheme.primary.opacity(0.12))
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                }
+            }
+            .buttonStyle(.plain)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(attachment.originalName)
@@ -403,13 +623,11 @@ private struct AttachmentRowView: View {
 
             Spacer()
 
-            Button("Preview", action: onPreview)
-                .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(AppTheme.primary)
-
             Button(role: .destructive, action: onDelete) {
                 Image(systemName: "trash")
+                    .font(.system(size: 15))
                     .foregroundStyle(AppTheme.danger)
+                    .frame(width: 32, height: 32)
             }
             .buttonStyle(.plain)
         }
@@ -420,6 +638,16 @@ private struct AttachmentRowView: View {
 private struct PreviewDocument: Identifiable {
     let id = UUID()
     let url: URL
+}
+
+private struct ShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 private struct AttachmentPreviewController: UIViewControllerRepresentable {
