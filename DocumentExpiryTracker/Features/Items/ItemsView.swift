@@ -283,7 +283,8 @@ struct ItemsView: View {
     }
 
     private func delete(_ item: TrackedItem) {
-        AttachmentStorage.deleteAll(item.attachments)
+        let attached = item.attachedFiles ?? []
+        AttachmentStorage.deleteAllLocalCaches(attached)
         notificationManager.removeNotifications(for: item)
         modelContext.delete(item)
         try? modelContext.save()

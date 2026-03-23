@@ -22,6 +22,8 @@ targets:
       properties:
         CFBundleDisplayName: Document Expiry Tracker
         UILaunchScreen: {}
+        UIBackgroundModes:
+          - remote-notification
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
         NSUserNotificationsUsageDescription: Document Expiry Tracker uses notifications to remind you before items expire or renew.

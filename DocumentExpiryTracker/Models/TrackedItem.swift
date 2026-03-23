@@ -19,7 +19,11 @@ final class TrackedItem {
     var notesText: String = ""
     var ownerName: String = ""
     var reminderOffsetsRaw: String = ""
-    var attachmentRecordsRaw: String = "[]"
+    var attachmentRecordsRaw: String = "[]" // Legacy field, kept for migration and backwards compatibility
+    
+    @Relationship(deleteRule: .cascade, inverse: \TrackedItemAttachment.item)
+    var attachedFiles: [TrackedItemAttachment]? = []
+    
     var archivedAt: Date?
     var createdAt: Date = Date.now
     var updatedAt: Date = Date.now
@@ -36,7 +40,7 @@ final class TrackedItem {
         notesText: String = "",
         ownerName: String = "",
         reminders: [ReminderOffset] = [.sevenDays],
-        attachments: [StoredAttachment] = [],
+        attachments: [StoredAttachment] = [], // Kept to not break existing initializers
         archivedAt: Date? = nil,
         createdAt: Date = .now,
         updatedAt: Date = .now
@@ -53,6 +57,7 @@ final class TrackedItem {
         self.ownerName = ownerName
         self.reminderOffsetsRaw = reminders.map(\.rawValue).sorted().map(String.init).joined(separator: ",")
         self.attachmentRecordsRaw = Self.encodeAttachments(attachments)
+        self.attachedFiles = []
         self.archivedAt = archivedAt
         self.createdAt = createdAt
         self.updatedAt = updatedAt
@@ -85,6 +90,7 @@ final class TrackedItem {
         }
     }
 
+    // Legacy helper property, keeping it for migration code to be cleaner
     var attachments: [StoredAttachment] {
         get { Self.decodeAttachments(attachmentRecordsRaw) }
         set { attachmentRecordsRaw = Self.encodeAttachments(newValue) }

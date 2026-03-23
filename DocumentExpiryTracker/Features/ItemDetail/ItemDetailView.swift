@@ -220,20 +220,18 @@ struct ItemDetailView: View {
             }
 
             if purchaseManager.isProUnlocked {
-                if item.attachments.isEmpty {
-                    Text("Attach scans, photos, or PDFs. Files stay securely on this device.")
+                let currentFiles = (item.attachedFiles ?? []).sorted { $0.createdAt < $1.createdAt }
+                if currentFiles.isEmpty {
+                    Text("Attach scans, photos, or PDFs. Files securely sync across your devices via iCloud.")
                         .font(.system(size: 14))
                         .foregroundStyle(AppTheme.textSecondary)
                 } else {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Attachments are stored locally on this device.")
-                            .font(.system(size: 13))
-                            .foregroundStyle(AppTheme.textMuted)
-                        
                         VStack(spacing: 10) {
-                            ForEach(item.attachments) { attachment in
+                            ForEach(currentFiles) { attachment in
                                 AttachmentRowView(attachment: attachment) {
-                                    previewDocument = PreviewDocument(url: AttachmentStorage.fileURL(for: attachment))
+                                    let url = AttachmentStorage.fileURL(for: attachment)
+                                    previewDocument = PreviewDocument(url: url)
                                 } onDelete: {
                                     deleteAttachment(attachment)
                                 }
@@ -243,7 +241,7 @@ struct ItemDetailView: View {
                 }
             } else {
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("Unlock Pro to add local scans, images, and PDFs to this item.")
+                    Text("Unlock Pro to attach scans, images, and PDFs to this item.")
                         .font(.system(size: 14))
                         .foregroundStyle(AppTheme.textSecondary)
                     Button("Unlock Attachments") {
@@ -522,7 +520,8 @@ struct ItemDetailView: View {
     }
 
     private func deleteItem() {
-        AttachmentStorage.deleteAll(item.attachments)
+        let attached = item.attachedFiles ?? []
+        AttachmentStorage.deleteAllLocalCaches(attached)
         notificationManager.removeNotifications(for: item)
         modelContext.delete(item)
         do {
@@ -546,9 +545,10 @@ struct ItemDetailView: View {
                 return
             }
             let attachment = try AttachmentStorage.importPhotoData(data, suggestedName: "Photo")
-            var attachments = item.attachments
-            attachments.append(attachment)
-            item.attachments = attachments
+            modelContext.insert(attachment)
+            var currentFiles = item.attachedFiles ?? []
+            currentFiles.append(attachment)
+            item.attachedFiles = currentFiles
             item.updatedAt = .now
             try modelContext.save()
         } catch {
@@ -565,9 +565,10 @@ struct ItemDetailView: View {
         do {
             guard let url = try result.get().first else { return }
             let attachment = try AttachmentStorage.importFile(at: url)
-            var attachments = item.attachments
-            attachments.append(attachment)
-            item.attachments = attachments
+            modelContext.insert(attachment)
+            var currentFiles = item.attachedFiles ?? []
+            currentFiles.append(attachment)
+            item.attachedFiles = currentFiles
             item.updatedAt = .now
             try modelContext.save()
         } catch {
@@ -575,12 +576,13 @@ struct ItemDetailView: View {
         }
     }
 
-    private func deleteAttachment(_ attachment: StoredAttachment) {
-        AttachmentStorage.delete(attachment)
-        var attachments = item.attachments
-        attachments.removeAll { $0.id == attachment.id }
-        item.attachments = attachments
+    private func deleteAttachment(_ attachment: TrackedItemAttachment) {
+        AttachmentStorage.deleteLocalCache(for: attachment)
+        var currentFiles = item.attachedFiles ?? []
+        currentFiles.removeAll { $0.id == attachment.id }
+        item.attachedFiles = currentFiles
         item.updatedAt = .now
+        modelContext.delete(attachment)
         do {
             try modelContext.save()
         } catch {
@@ -590,21 +592,20 @@ struct ItemDetailView: View {
 }
 
 private struct AttachmentRowView: View {
-    let attachment: StoredAttachment
+    let attachment: TrackedItemAttachment
     let onPreview: () -> Void
     let onDelete: () -> Void
 
     var body: some View {
-        let fileURL = AttachmentStorage.fileURL(for: attachment)
-        let fileExists = FileManager.default.fileExists(atPath: fileURL.path)
+        let isReady = attachment.fileData != nil
         
         HStack(spacing: 12) {
             Button(action: {
-                if fileExists { onPreview() }
+                if isReady { onPreview() }
             }) {
                 if attachment.kind == .image,
-                   fileExists,
-                   let data = try? Data(contentsOf: fileURL),
+                   isReady,
+                   let data = attachment.fileData,
                    let uiImage = UIImage(data: data) {
                     Image(uiImage: uiImage)
                         .resizable()
@@ -613,16 +614,16 @@ private struct AttachmentRowView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                         .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(AppTheme.border, lineWidth: 1))
                 } else {
-                    Image(systemName: fileExists ? attachment.kind.symbolName : "cloud.slash.fill")
+                    Image(systemName: isReady ? attachment.kind.symbolName : "icloud.and.arrow.down")
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(fileExists ? AppTheme.primary : AppTheme.textMuted)
+                        .foregroundStyle(isReady ? AppTheme.primary : AppTheme.textMuted)
                         .frame(width: 44, height: 44)
-                        .background(fileExists ? AppTheme.primary.opacity(0.12) : AppTheme.fillSoft)
+                        .background(isReady ? AppTheme.primary.opacity(0.12) : AppTheme.fillSoft)
                         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 }
             }
             .buttonStyle(.plain)
-            .disabled(!fileExists)
+            .disabled(!isReady)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(attachment.originalName)
@@ -630,12 +631,12 @@ private struct AttachmentRowView: View {
                     .foregroundStyle(AppTheme.textPrimary)
                     .lineLimit(1)
                 
-                if fileExists {
+                if isReady {
                     Text(attachment.kind.title)
                         .font(.system(size: 12))
                         .foregroundStyle(AppTheme.textSecondary)
                 } else {
-                    Text("Stored on another device")
+                    Text("Downloading from iCloud...")
                         .font(.system(size: 12))
                         .foregroundStyle(AppTheme.textMuted)
                 }
@@ -643,7 +644,7 @@ private struct AttachmentRowView: View {
 
             Spacer()
 
-            if fileExists {
+            if isReady {
                 Button("Preview", action: onPreview)
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(AppTheme.primary)

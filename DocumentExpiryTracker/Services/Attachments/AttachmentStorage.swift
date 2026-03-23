@@ -16,21 +16,23 @@ enum AttachmentStorageError: LocalizedError {
 }
 
 enum AttachmentStorage {
-    static func importPhotoData(_ data: Data, suggestedName: String = "Photo") throws -> StoredAttachment {
+    static func importPhotoData(_ data: Data, suggestedName: String = "Photo") throws -> TrackedItemAttachment {
         guard !data.isEmpty else { throw AttachmentStorageError.invalidImage }
         let attachmentID = UUID()
         let fileName = "\(attachmentID.uuidString).jpg"
-        let url = try directoryURL().appendingPathComponent(fileName)
-        try data.write(to: url, options: .atomic)
-        return StoredAttachment(
+        
+        let attachment = TrackedItemAttachment(
             id: attachmentID,
             fileName: fileName,
             originalName: suggestedName,
-            kind: .image
+            kind: .image,
+            fileData: data
         )
+        _ = try writeToLocalCache(attachment: attachment)
+        return attachment
     }
 
-    static func importFile(at sourceURL: URL) throws -> StoredAttachment {
+    static func importFile(at sourceURL: URL) throws -> TrackedItemAttachment {
         let didAccess = sourceURL.startAccessingSecurityScopedResource()
         defer {
             if didAccess {
@@ -44,27 +46,66 @@ enum AttachmentStorage {
         let attachmentID = UUID()
         let ext = sourceURL.pathExtension.isEmpty ? "dat" : sourceURL.pathExtension.lowercased()
         let fileName = "\(attachmentID.uuidString).\(ext)"
-        let destinationURL = try directoryURL().appendingPathComponent(fileName)
-        try data.write(to: destinationURL, options: .atomic)
-
-        return StoredAttachment(
+        
+        let attachment = TrackedItemAttachment(
             id: attachmentID,
             fileName: fileName,
             originalName: sourceURL.lastPathComponent,
-            kind: kind(forExtension: ext)
+            kind: kind(forExtension: ext),
+            fileData: data
         )
+        _ = try writeToLocalCache(attachment: attachment)
+        return attachment
     }
 
-    static func delete(_ attachment: StoredAttachment) {
-        try? FileManager.default.removeItem(at: fileURL(for: attachment))
+    static func fileURL(for attachment: TrackedItemAttachment) -> URL {
+        let url = localURL(for: attachment)
+        if !FileManager.default.fileExists(atPath: url.path) {
+            if let data = attachment.fileData {
+                try? data.write(to: url, options: [.atomic])
+            }
+        }
+        return url
     }
 
-    static func deleteAll(_ attachments: [StoredAttachment]) {
-        attachments.forEach(delete)
+    static func deleteLocalCache(for attachment: TrackedItemAttachment) {
+        try? FileManager.default.removeItem(at: localURL(for: attachment))
     }
 
-    static func fileURL(for attachment: StoredAttachment) -> URL {
-        (try? directoryURL().appendingPathComponent(attachment.fileName)) ?? FileManager.default.temporaryDirectory
+    static func deleteAllLocalCaches(_ attachments: [TrackedItemAttachment]) {
+        attachments.forEach(deleteLocalCache)
+    }
+
+    private static func localURL(for attachment: TrackedItemAttachment) -> URL {
+        if let dir = try? directoryURL() {
+            return dir.appendingPathComponent(attachment.fileName)
+        }
+        return FileManager.default.temporaryDirectory.appendingPathComponent(attachment.fileName)
+    }
+
+    @discardableResult
+    private static func writeToLocalCache(attachment: TrackedItemAttachment) throws -> URL {
+        let url = localURL(for: attachment)
+        if !FileManager.default.fileExists(atPath: url.path) {
+            if let data = attachment.fileData {
+                try data.write(to: url, options: [.atomic])
+            } else {
+                throw AttachmentStorageError.failedToAccessFile
+            }
+        }
+        return url
+    }
+
+    // For migration
+    static func legacyFileURL(for fileName: String) -> URL? {
+        guard let baseURL = try? FileManager.default.url(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: false
+        ) else { return nil }
+        let attachmentsURL = baseURL.appendingPathComponent("Attachments", isDirectory: true)
+        return attachmentsURL.appendingPathComponent(fileName)
     }
 
     private static func directoryURL() throws -> URL {

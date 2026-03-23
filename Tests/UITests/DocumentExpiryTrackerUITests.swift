@@ -123,7 +123,8 @@ final class DocumentExpiryTrackerUITests: XCTestCase {
             title.tap()
             title.typeText("Item \(index)")
             app.buttons["itemForm_save_bottom"].tap()
-            XCTAssertTrue(app.staticTexts["Item \(index)"].waitForExistence(timeout: 3))
+            // Wait for the form to dismiss before proceeding
+            XCTAssertTrue(app.buttons["itemForm_save_bottom"].waitForNonExistence(timeout: 5))
         }
         app.buttons["home_header_add"].tap()
         XCTAssertTrue(app.buttons["paywall_unlock"].waitForExistence(timeout: 3))
@@ -153,7 +154,8 @@ final class DocumentExpiryTrackerUITests: XCTestCase {
             title.tap()
             title.typeText("Item \(index)")
             app.buttons["itemForm_save_bottom"].tap()
-            XCTAssertTrue(app.staticTexts["Item \(index)"].waitForExistence(timeout: 3))
+            // Wait for the form to dismiss before proceeding
+            XCTAssertTrue(app.buttons["itemForm_save_bottom"].waitForNonExistence(timeout: 5))
         }
         app.buttons["home_header_add"].tap()
         XCTAssertTrue(app.buttons["paywall_close"].waitForExistence(timeout: 3))

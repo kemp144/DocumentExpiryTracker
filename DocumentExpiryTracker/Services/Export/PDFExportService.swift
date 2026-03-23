@@ -107,8 +107,9 @@ enum PDFExportService {
         }
 
         // ── Attachments list ───────────────────────────────────────────────────
-        if !item.attachments.isEmpty {
-            y = drawAttachmentsList(attachments: item.attachments, y: y)
+        let currentFiles = (item.attachedFiles ?? []).sorted { $0.createdAt < $1.createdAt }
+        if !currentFiles.isEmpty {
+            y = drawAttachmentsList(attachments: currentFiles, y: y)
         }
 
         // ── Footer ─────────────────────────────────────────────────────────────
@@ -363,7 +364,7 @@ enum PDFExportService {
 
     // MARK: - Attachments list
 
-    private static func drawAttachmentsList(attachments: [StoredAttachment], y: CGFloat) -> CGFloat {
+    private static func drawAttachmentsList(attachments: [TrackedItemAttachment], y: CGFloat) -> CGFloat {
         var currentY = y
         draw(text: "ATTACHMENTS", font: .systemFont(ofSize: 11, weight: .semibold), color: textMuted,
              at: CGPoint(x: margin, y: currentY), width: contentWidth, alignment: .left)

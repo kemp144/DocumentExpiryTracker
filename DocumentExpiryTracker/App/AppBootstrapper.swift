@@ -10,10 +10,41 @@ enum AppBootstrapper {
             settings.hasCompletedOnboarding = true
         }
 
+        // Migration step: Move legacy StoredAttachment from JSON string to proper TrackedItemAttachment models
+        let descriptor = FetchDescriptor<TrackedItem>()
+        if let existingItems = try? context.fetch(descriptor) {
+            for item in existingItems {
+                if !item.attachmentRecordsRaw.isEmpty && item.attachmentRecordsRaw != "[]" {
+                    let legacyAttachments = item.attachments
+                    var newAttachments: [TrackedItemAttachment] = []
+                    for legacy in legacyAttachments {
+                        var data: Data? = nil
+                        if let url = AttachmentStorage.legacyFileURL(for: legacy.fileName) {
+                            data = try? Data(contentsOf: url)
+                            try? FileManager.default.removeItem(at: url)
+                        }
+                        let newAtt = TrackedItemAttachment(
+                            id: legacy.id,
+                            fileName: legacy.fileName,
+                            originalName: legacy.originalName,
+                            kind: legacy.kind,
+                            createdAt: legacy.createdAt,
+                            fileData: data
+                        )
+                        context.insert(newAtt)
+                        newAttachments.append(newAtt)
+                    }
+                    item.attachedFiles = (item.attachedFiles ?? []) + newAttachments
+                    item.attachmentRecordsRaw = "[]" // mark as migrated
+                }
+            }
+            try? context.save()
+        }
+
         guard arguments.contains("UITEST_SEED_SAMPLE_ITEMS") else { return }
 
-        let descriptor = FetchDescriptor<TrackedItem>()
-        let existingCount = (try? context.fetchCount(descriptor)) ?? 0
+        let sampleDescriptor = FetchDescriptor<TrackedItem>()
+        let existingCount = (try? context.fetchCount(sampleDescriptor)) ?? 0
         guard existingCount == 0 else { return }
 
         let today = Calendar.current.startOfDay(for: .now)

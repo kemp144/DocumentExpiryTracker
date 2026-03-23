@@ -43,7 +43,7 @@ struct ItemCardView: View {
                             .font(.system(size: 13, weight: .medium))
                             .foregroundStyle(AppTheme.textSecondary)
 
-                        if !item.attachments.isEmpty {
+                        if item.attachedFiles?.isEmpty == false {
                             Image(systemName: "paperclip")
                                 .font(.system(size: 11, weight: .semibold))
                                 .foregroundStyle(AppTheme.textMuted)

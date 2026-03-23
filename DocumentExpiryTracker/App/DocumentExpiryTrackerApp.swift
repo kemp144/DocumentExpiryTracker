@@ -21,7 +21,7 @@ struct DocumentExpiryTrackerApp: App {
         _appLockManager = StateObject(wrappedValue: appLockManager)
 
         do {
-            let schema = Schema([TrackedItem.self])
+            let schema = Schema([TrackedItem.self, TrackedItemAttachment.self])
             let arguments = ProcessInfo.processInfo.arguments
             if arguments.contains("UITEST_IN_MEMORY_STORE") {
                 let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)

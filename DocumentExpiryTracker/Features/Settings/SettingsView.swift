@@ -114,8 +114,7 @@ struct SettingsView: View {
         }
         .confirmationDialog("Reset All Data", isPresented: $showingResetConfirmation, titleVisibility: .visible) {
             Button("Delete All Items", role: .destructive) {
-                for item in allItems { modelContext.delete(item) }
-                statusMessage = "All data deleted."
+                resetAllData()
             }
             Button("Cancel", role: .cancel) {}
         } message: {
@@ -576,7 +575,13 @@ struct SettingsView: View {
                         reminders: [.thirtyDays, .sevenDays]),
         ]
         for item in samples { modelContext.insert(item) }
-        statusMessage = "Generated \(samples.count) items."
+        do {
+            try modelContext.save()
+            WidgetSnapshotService.sync(context: modelContext, isProUnlocked: purchaseManager.isProUnlocked)
+            statusMessage = "Generated \(samples.count) items."
+        } catch {
+            statusMessage = error.localizedDescription
+        }
     }
     #endif
 
@@ -675,6 +680,22 @@ struct SettingsView: View {
     private func openAppSettings() {
         guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
         openURL(url)
+    }
+
+    private func resetAllData() {
+        for item in allItems {
+            AttachmentStorage.deleteAllLocalCaches(item.attachedFiles ?? [])
+            notificationManager.removeNotifications(for: item)
+            modelContext.delete(item)
+        }
+
+        do {
+            try modelContext.save()
+            WidgetSnapshotService.sync(context: modelContext, isProUnlocked: purchaseManager.isProUnlocked)
+            statusMessage = "All data deleted."
+        } catch {
+            statusMessage = error.localizedDescription
+        }
     }
 
     private func exportCSV(items: [TrackedItem]) {

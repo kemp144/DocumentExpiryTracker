@@ -3,7 +3,7 @@ import StoreKit
 
 @MainActor
 final class PurchaseManager: ObservableObject {
-    static let productID = "com.expiryvault.pro.lifetime"
+    static let productID = "com.documentexpirytracker.pro.lifetime"
     static let defaultsKey = "isProUnlocked"
 
     @Published private(set) var isProUnlocked: Bool
