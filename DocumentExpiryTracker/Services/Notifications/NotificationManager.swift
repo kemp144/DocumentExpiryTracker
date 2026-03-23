@@ -38,7 +38,7 @@ final class NotificationManager: ObservableObject {
         guard authorizationStatus == .authorized || authorizationStatus == .provisional else { return }
 
         let calendar = Calendar.current
-        let dueDay = calendar.startOfDay(for: item.dueDate)
+        let dueDay = calendar.startOfDay(for: ItemAnalytics.effectiveDueDate(for: item, calendar: calendar))
 
         for offset in item.reminders {
             guard let triggerDate = calendar.date(byAdding: .day, value: -offset.rawValue, to: dueDay),
@@ -47,9 +47,11 @@ final class NotificationManager: ObservableObject {
 
             let content = UNMutableNotificationContent()
             content.title = item.title
-            content.body = offset == .sameDay
-                ? "Due today in Document Expiry Tracker."
-                : "Due in \(offset.rawValue) day\(offset.rawValue == 1 ? "" : "s") in Document Expiry Tracker."
+            if offset == .sameDay {
+                content.body = "\(ItemAnalytics.actionLabel(for: item)) today in Document Expiry Tracker."
+            } else {
+                content.body = "\(ItemAnalytics.actionLabel(for: item)) in \(offset.rawValue) day\(offset.rawValue == 1 ? "" : "s") in Document Expiry Tracker."
+            }
             content.sound = .default
 
             let components = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: triggerDate)

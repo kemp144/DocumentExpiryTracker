@@ -20,6 +20,8 @@ struct NextDueEntry: TimelineEntry {
     let date: Date
     let item: WidgetItemSnapshot?
     let isProUnlocked: Bool
+    let dueSoonCount: Int
+    let monthlyRecurringTotal: Double
 }
 
 struct NextDueProvider: TimelineProvider {
@@ -31,9 +33,13 @@ struct NextDueProvider: TimelineProvider {
                 title: "Passport",
                 categoryRaw: ItemCategory.document.rawValue,
                 dueDate: Calendar.current.date(byAdding: .day, value: 12, to: .now) ?? .now,
-                provider: "US Government"
+                provider: "US Government",
+                recurringLabel: nil,
+                monthlyAmount: nil
             ),
-            isProUnlocked: false
+            isProUnlocked: false,
+            dueSoonCount: 2,
+            monthlyRecurringTotal: 15.99
         )
     }
 
@@ -49,29 +55,38 @@ struct NextDueProvider: TimelineProvider {
 
     private func loadEntry() -> NextDueEntry {
         guard let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: WidgetSnapshotStore.appGroupIdentifier) else {
-            return NextDueEntry(date: .now, item: nil, isProUnlocked: false)
+            return NextDueEntry(date: .now, item: nil, isProUnlocked: false, dueSoonCount: 0, monthlyRecurringTotal: 0)
         }
 
         let fileURL = containerURL.appendingPathComponent(WidgetSnapshotStore.fileName)
         guard let data = try? Data(contentsOf: fileURL),
               let payload = try? JSONDecoder().decode(WidgetSnapshotPayload.self, from: data)
         else {
-            return NextDueEntry(date: .now, item: nil, isProUnlocked: false)
+            return NextDueEntry(date: .now, item: nil, isProUnlocked: false, dueSoonCount: 0, monthlyRecurringTotal: 0)
         }
 
         let nextItem = payload.items.sorted { $0.dueDate < $1.dueDate }.first
-        return NextDueEntry(date: .now, item: nextItem, isProUnlocked: payload.isProUnlocked)
+        return NextDueEntry(
+            date: .now,
+            item: nextItem,
+            isProUnlocked: payload.isProUnlocked,
+            dueSoonCount: payload.dueSoonCount,
+            monthlyRecurringTotal: payload.monthlyRecurringTotal
+        )
     }
 }
 
 struct NextDueWidgetEntryView: View {
+    @Environment(\.widgetFamily) private var family
     var entry: NextDueProvider.Entry
 
     var body: some View {
         ZStack {
             LinearGradient(colors: [Color(hex: "0A84FF"), Color(hex: "5E5CE6")], startPoint: .topLeading, endPoint: .bottomTrailing)
 
-            if let item = entry.item {
+            if !entry.isProUnlocked {
+                lockedWidget
+            } else if let item = entry.item {
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
                         Image(systemName: item.category.symbolName)
@@ -88,12 +103,12 @@ struct NextDueWidgetEntryView: View {
 
                     Spacer()
 
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: 6) {
                         Text("Next Due")
                             .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(Color.white.opacity(0.72))
                         Text(item.title)
-                            .font(.system(size: 18, weight: .bold))
+                            .font(.system(size: family == .systemSmall ? 18 : 20, weight: .bold))
                             .foregroundStyle(Color.white)
                             .lineLimit(2)
                         if !item.provider.isEmpty {
@@ -101,6 +116,20 @@ struct NextDueWidgetEntryView: View {
                                 .font(.system(size: 12))
                                 .foregroundStyle(Color.white.opacity(0.82))
                                 .lineLimit(1)
+                        }
+                        if family == .systemMedium {
+                            HStack(spacing: 10) {
+                                statPill(title: "Due soon", value: "\(entry.dueSoonCount)")
+                                statPill(title: "Monthly", value: currencyString(amount: entry.monthlyRecurringTotal))
+                            }
+                        } else if let recurringLabel = item.recurringLabel {
+                            Text(recurringLabel)
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundStyle(Color.white.opacity(0.84))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(Color.white.opacity(0.14))
+                                .clipShape(Capsule())
                         }
                     }
                 }
@@ -121,6 +150,52 @@ struct NextDueWidgetEntryView: View {
         .containerBackground(for: .widget) {
             LinearGradient(colors: [Color(hex: "0A84FF"), Color(hex: "5E5CE6")], startPoint: .topLeading, endPoint: .bottomTrailing)
         }
+    }
+
+    private var lockedWidget: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Image(systemName: "crown.fill")
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(Color.white)
+                .frame(width: 36, height: 36)
+                .background(Color.white.opacity(0.18))
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+
+            Spacer()
+
+            Text("Widgets are part of Pro")
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(Color.white)
+            Text("Unlock Pro in the app to see upcoming renewals here.")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(Color.white.opacity(0.86))
+                .lineLimit(3)
+        }
+        .padding(16)
+    }
+
+    private func statPill(title: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(Color.white.opacity(0.72))
+            Text(value)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(Color.white)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .background(Color.white.opacity(0.14))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+
+    private func currencyString(amount: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = Locale.current.currency?.identifier ?? "USD"
+        formatter.maximumFractionDigits = 2
+        formatter.minimumFractionDigits = 2
+        return formatter.string(from: NSNumber(value: amount)) ?? "$0.00"
     }
 }
 

@@ -11,6 +11,8 @@ struct WidgetItemSnapshot: Codable, Identifiable {
     let categoryRaw: String
     let dueDate: Date
     let provider: String
+    let recurringLabel: String?
+    let monthlyAmount: Double?
 
     var category: ItemCategory {
         ItemCategory(rawValue: categoryRaw) ?? .other
@@ -21,6 +23,8 @@ struct WidgetSnapshotPayload: Codable {
     let generatedAt: Date
     let isProUnlocked: Bool
     let items: [WidgetItemSnapshot]
+    let dueSoonCount: Int
+    let monthlyRecurringTotal: Double
 }
 
 enum WidgetCountdownFormatter {

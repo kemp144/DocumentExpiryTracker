@@ -19,10 +19,15 @@ enum WidgetSnapshotService {
                         id: $0.id,
                         title: $0.title,
                         categoryRaw: $0.category.rawValue,
-                        dueDate: $0.dueDate,
-                        provider: $0.provider
+                        dueDate: ItemAnalytics.effectiveDueDate(for: $0),
+                        provider: $0.provider,
+                        recurringLabel: $0.isRecurring ? $0.recurringInterval.title : nil,
+                        monthlyAmount: $0.recurringInterval == .monthly ? $0.amount : nil
                     )
                 }
+                .sorted { $0.dueDate < $1.dueDate },
+            dueSoonCount: ItemAnalytics.dueSoonItems(from: items).count,
+            monthlyRecurringTotal: ItemAnalytics.monthlyRecurringTotal(from: items)
         )
 
         guard let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: WidgetSnapshotStore.appGroupIdentifier) else {

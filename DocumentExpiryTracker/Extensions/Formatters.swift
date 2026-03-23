@@ -16,4 +16,13 @@ enum AppFormatters {
         formatter.minimumFractionDigits = 2
         return formatter.string(from: NSNumber(value: amount)) ?? "\(currencyCode) \(String(format: "%.2f", amount))"
     }
+
+    static func compactCurrencyString(amount: Double, currencyCode: String) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencyCode = currencyCode
+        formatter.maximumFractionDigits = 0
+        formatter.minimumFractionDigits = 0
+        return formatter.string(from: NSNumber(value: amount)) ?? currencyString(amount: amount, currencyCode: currencyCode)
+    }
 }

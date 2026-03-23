@@ -15,8 +15,6 @@ targets:
     deploymentTarget: "17.0"
     sources:
       - path: DocumentExpiryTracker
-        excludes:
-          - Resources
     entitlements:
       path: DocumentExpiryTracker/App/DocumentExpiryTracker.entitlements
     info:

@@ -7,9 +7,9 @@ struct OnboardingFlowView: View {
     @State private var stepIndex = 0
 
     private let steps: [(symbol: String, title: String, message: String, gradient: [Color])] = [
-        ("calendar", "Track Important Renewals", "Never miss a document expiration, subscription renewal, or contract deadline again.", [AppTheme.primary, AppTheme.purple]),
-        ("bell.badge.fill", "Stay Ahead with Gentle Reminders", "Get notified at the right moment so you stay prepared without the app feeling noisy.", [AppTheme.warning, Color(hex: "FF6B00")]),
-        ("shield.fill", "Keep Everything Private and Organized", "Your data stays on your device. Simple, secure, and completely private.", [Color(hex: "34C759"), AppTheme.success])
+        ("calendar", "Track What Matters", "Keep passports, subscriptions, warranties, contracts, insurance, and other due dates in one calm place.", [AppTheme.primary, AppTheme.purple]),
+        ("bell.badge.fill", "Stay Ahead of Renewals", "Get timely reminders before something expires, renews, or becomes overdue.", [AppTheme.warning, Color(hex: "FF6B00")]),
+        ("shield.fill", "Private, Local, and Simple", "Your data stays on your device so you can stay organized without giving up privacy.", [Color(hex: "34C759"), AppTheme.success])
     ]
 
     private var isNotificationStep: Bool {
@@ -129,7 +129,7 @@ struct OnboardingFlowView: View {
                     .foregroundStyle(AppTheme.textPrimary)
                     .multilineTextAlignment(.center)
 
-                Text("Get reminded about upcoming renewals and expirations so you never miss an important date.")
+                Text("Get reminded before renewals, subscriptions, and important due dates so nothing slips past you.")
                     .font(.system(size: 17))
                     .foregroundStyle(AppTheme.textSecondary)
                     .multilineTextAlignment(.center)
@@ -137,9 +137,9 @@ struct OnboardingFlowView: View {
             }
 
             VStack(alignment: .leading, spacing: 18) {
-                permissionRow(title: "Timely reminders", message: "Get notified before items expire.")
-                permissionRow(title: "Customizable alerts", message: "Choose the reminder timing that fits you.")
-                permissionRow(title: "Never miss a deadline", message: "Stay organized and prepared.")
+                permissionRow(title: "Timely reminders", message: "Get notified before something expires or renews.")
+                permissionRow(title: "Flexible timing", message: "Choose the reminder schedule that fits how you plan ahead.")
+                permissionRow(title: "Less mental load", message: "Keep important dates out of your head and safely tracked.")
             }
             .padding(20)
             .background(AppTheme.elevated)

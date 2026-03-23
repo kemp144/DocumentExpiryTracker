@@ -18,4 +18,11 @@ final class FeatureGateTests: XCTestCase {
         XCTAssertEqual(FeatureGate.availableCurrencies(isPro: false, locale: Locale(identifier: "en_US")), ["USD"])
         XCTAssertTrue(FeatureGate.availableCurrencies(isPro: true).contains("EUR"))
     }
+
+    func testPremiumFeaturesRequirePro() {
+        XCTAssertFalse(FeatureGate.canUse(.widgets, isPro: false))
+        XCTAssertFalse(FeatureGate.canUse(.attachments, isPro: false))
+        XCTAssertTrue(FeatureGate.canUse(.widgets, isPro: true))
+        XCTAssertTrue(FeatureGate.canUse(.attachments, isPro: true))
+    }
 }

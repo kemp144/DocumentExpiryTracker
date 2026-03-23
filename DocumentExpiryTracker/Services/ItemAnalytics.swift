@@ -5,9 +5,29 @@ enum ItemAnalytics {
         calendar.startOfDay(for: date)
     }
 
+    static func effectiveDueDate(for item: TrackedItem, now: Date = .now, calendar: Calendar = .current) -> Date {
+        guard item.isRecurring else { return item.dueDate }
+
+        let today = startOfDay(now, calendar: calendar)
+        var nextDate = item.dueDate
+
+        while startOfDay(nextDate, calendar: calendar) < today {
+            switch item.recurringInterval {
+            case .monthly:
+                nextDate = calendar.date(byAdding: .month, value: 1, to: nextDate) ?? nextDate
+            case .yearly:
+                nextDate = calendar.date(byAdding: .year, value: 1, to: nextDate) ?? nextDate
+            case .none:
+                return item.dueDate
+            }
+        }
+
+        return nextDate
+    }
+
     static func daysUntilDue(for item: TrackedItem, now: Date = .now, calendar: Calendar = .current) -> Int {
         let today = startOfDay(now, calendar: calendar)
-        let due = startOfDay(item.dueDate, calendar: calendar)
+        let due = startOfDay(effectiveDueDate(for: item, now: now, calendar: calendar), calendar: calendar)
         return calendar.dateComponents([.day], from: today, to: due).day ?? 0
     }
 
@@ -35,6 +55,28 @@ enum ItemAnalytics {
         return months == 1 ? "in 1 month" : "in \(months) months"
     }
 
+    static func actionLabel(for item: TrackedItem) -> String {
+        if item.isRecurring || item.category == .subscription || item.category == .contract || item.category == .insurance {
+            return "Renews"
+        }
+        return "Expires"
+    }
+
+    static func urgencyTitle(for item: TrackedItem, now: Date = .now, calendar: Calendar = .current) -> String {
+        let label = actionLabel(for: item)
+        let days = daysUntilDue(for: item, now: now, calendar: calendar)
+        if days < 0 {
+            return "\(label) overdue"
+        }
+        if days == 0 {
+            return "\(label) today"
+        }
+        if days == 1 {
+            return "\(label) tomorrow"
+        }
+        return "\(label) in \(days) days"
+    }
+
     static func activeItems(from items: [TrackedItem]) -> [TrackedItem] {
         items.filter { !$0.isArchived }
     }
@@ -55,11 +97,21 @@ enum ItemAnalytics {
             let days = daysUntilDue(for: $0, now: now)
             return days >= 0 && days <= 30
         }
-        .sorted { $0.dueDate < $1.dueDate }
+        .sorted { effectiveDueDate(for: $0, now: now) < effectiveDueDate(for: $1, now: now) }
     }
 
     static func nextDueItem(from items: [TrackedItem], now: Date = .now) -> TrackedItem? {
         upcomingWithinThirtyDays(from: items, now: now).first
+    }
+
+    static func criticalItem(from items: [TrackedItem], now: Date = .now) -> TrackedItem? {
+        if let expired = expiredItems(from: items, now: now).sorted(by: { effectiveDueDate(for: $0, now: now) < effectiveDueDate(for: $1, now: now) }).first {
+            return expired
+        }
+        if let urgent = dueSoonItems(from: items, now: now).sorted(by: { effectiveDueDate(for: $0, now: now) < effectiveDueDate(for: $1, now: now) }).first {
+            return urgent
+        }
+        return activeItems(from: items).sorted { effectiveDueDate(for: $0, now: now) < effectiveDueDate(for: $1, now: now) }.first
     }
 
     static func monthlyRecurringTotal(from items: [TrackedItem]) -> Double {
@@ -80,11 +132,43 @@ enum ItemAnalytics {
         monthlyRecurringTotal(from: items) * 12 + yearlyRecurringTotal(from: items)
     }
 
+    static func recurringDueInNextThirtyDaysTotal(from items: [TrackedItem], now: Date = .now) -> Double {
+        activeItems(from: items)
+            .filter { $0.isRecurring }
+            .filter {
+                let days = daysUntilDue(for: $0, now: now)
+                return days >= 0 && days <= 30
+            }
+            .compactMap(\.amount)
+            .reduce(0, +)
+    }
+
     static func dueInNext(days: Int, items: [TrackedItem], now: Date = .now) -> Int {
         activeItems(from: items).filter {
             let delta = daysUntilDue(for: $0, now: now)
             return delta >= 0 && delta <= days
         }.count
+    }
+
+    static func renewalLoadThisMonth(from items: [TrackedItem], now: Date = .now, calendar: Calendar = .current) -> Int {
+        let interval = calendar.dateInterval(of: .month, for: now)
+        return activeItems(from: items).filter {
+            guard let interval else { return false }
+            let due = effectiveDueDate(for: $0, now: now, calendar: calendar)
+            return interval.contains(due)
+        }.count
+    }
+
+    static func expiringDocumentsCount(from items: [TrackedItem], now: Date = .now) -> Int {
+        activeItems(from: items).filter {
+            $0.category == .document && daysUntilDue(for: $0, now: now) <= 30
+        }.count
+    }
+
+    static func highestRecurringCostItem(from items: [TrackedItem]) -> TrackedItem? {
+        activeItems(from: items)
+            .filter { $0.isRecurring }
+            .max { ($0.amount ?? 0) < ($1.amount ?? 0) }
     }
 
     static func categoryBreakdown(from items: [TrackedItem]) -> [(ItemCategory, Int)] {

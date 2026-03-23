@@ -14,6 +14,7 @@ final class TrackedItem {
     var notesText: String
     var ownerName: String
     var reminderOffsetsRaw: String
+    var attachmentRecordsRaw: String
     var archivedAt: Date?
     var createdAt: Date
     var updatedAt: Date
@@ -30,6 +31,7 @@ final class TrackedItem {
         notesText: String = "",
         ownerName: String = "",
         reminders: [ReminderOffset] = [.sevenDays],
+        attachments: [StoredAttachment] = [],
         archivedAt: Date? = nil,
         createdAt: Date = .now,
         updatedAt: Date = .now
@@ -45,6 +47,7 @@ final class TrackedItem {
         self.notesText = notesText
         self.ownerName = ownerName
         self.reminderOffsetsRaw = reminders.map(\.rawValue).sorted().map(String.init).joined(separator: ",")
+        self.attachmentRecordsRaw = Self.encodeAttachments(attachments)
         self.archivedAt = archivedAt
         self.createdAt = createdAt
         self.updatedAt = updatedAt
@@ -77,6 +80,29 @@ final class TrackedItem {
         }
     }
 
+    var attachments: [StoredAttachment] {
+        get { Self.decodeAttachments(attachmentRecordsRaw) }
+        set { attachmentRecordsRaw = Self.encodeAttachments(newValue) }
+    }
+
     var isRecurring: Bool { recurringInterval != .none }
     var isArchived: Bool { archivedAt != nil }
+
+    private static func decodeAttachments(_ rawValue: String) -> [StoredAttachment] {
+        guard let data = rawValue.data(using: .utf8),
+              let decoded = try? JSONDecoder().decode([StoredAttachment].self, from: data)
+        else {
+            return []
+        }
+        return decoded.sorted { $0.createdAt < $1.createdAt }
+    }
+
+    private static func encodeAttachments(_ attachments: [StoredAttachment]) -> String {
+        guard let data = try? JSONEncoder().encode(attachments),
+              let value = String(data: data, encoding: .utf8)
+        else {
+            return "[]"
+        }
+        return value
+    }
 }

@@ -7,6 +7,8 @@ struct InsightsView: View {
 
     let onUpgradeTapped: () -> Void
 
+    private var activeItems: [TrackedItem] { ItemAnalytics.activeItems(from: items) }
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading, spacing: 16) {
@@ -14,13 +16,21 @@ struct InsightsView: View {
                     Text("Insights")
                         .font(.system(size: 28, weight: .bold))
                         .foregroundStyle(AppTheme.textPrimary)
-                    Text("Track your renewal patterns and recurring costs")
+                    Text("See renewal load, recurring costs, and where your attention goes next")
                         .font(.system(size: 15))
                         .foregroundStyle(AppTheme.textSecondary)
                 }
 
                 if purchaseManager.isProUnlocked {
-                    proContent
+                    if activeItems.isEmpty {
+                        EmptyStateView(
+                            systemImage: "chart.bar.xaxis",
+                            title: "Insights appear as you track more",
+                            message: "Add a few renewals or subscriptions and this tab will start surfacing meaningful patterns."
+                        )
+                    } else {
+                        proContent
+                    }
                 } else {
                     lockedContent
                 }
@@ -35,71 +45,50 @@ struct InsightsView: View {
 
     private var lockedContent: some View {
         VStack(spacing: 16) {
-            quickStatsCard(includeTotals: false)
+            quickStatsCard(includePremiumMetrics: false)
 
-            ZStack {
-                VStack(spacing: 16) {
-                    analyticsCard(title: "Recurring Costs") {
-                        lockedRow(label: "Monthly", value: "$XXX.XX")
-                        lockedRow(label: "Yearly", value: "$X,XXX.XX")
-                    }
-                    analyticsCard(title: "Category Breakdown") {
-                        ForEach(0..<3, id: \.self) { _ in
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .fill(AppTheme.fillSoft)
-                                .frame(height: 18)
-                        }
-                    }
+            VStack(alignment: .leading, spacing: 14) {
+                Text("With Pro, Insights helps you understand recurring costs, renewal pressure, and which categories need the most attention.")
+                    .font(.system(size: 15))
+                    .foregroundStyle(AppTheme.textSecondary)
+
+                Button("Unlock Advanced Insights") {
+                    onUpgradeTapped()
                 }
-                .blur(radius: 8)
+                .buttonStyle(AppFilledButtonStyle())
+                .accessibilityIdentifier("insights_upgrade")
+            }
+            .appCardStyle(padding: 22, radius: 24)
 
-                VStack(spacing: 16) {
-                    RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .fill(AppTheme.brandGradient)
-                        .frame(width: 72, height: 72)
-                        .overlay {
-                            Image(systemName: "lock.fill")
-                                .font(.system(size: 28))
-                                .foregroundStyle(Color.white)
-                        }
-
-                    VStack(spacing: 8) {
-                        Text("Unlock Insights")
-                            .font(.system(size: 24, weight: .bold))
-                            .foregroundStyle(AppTheme.textPrimary)
-                        Text("Get detailed analytics, recurring cost tracking, and premium overview cards.")
-                            .font(.system(size: 15))
-                            .foregroundStyle(AppTheme.textSecondary)
-                            .multilineTextAlignment(.center)
-                    }
-
-                    Button("Upgrade to Pro") {
-                        onUpgradeTapped()
-                    }
-                    .buttonStyle(AppFilledButtonStyle())
-                    .accessibilityIdentifier("insights_upgrade")
-                }
-                .padding(28)
-                .appCardStyle(padding: 28, radius: 24)
-                .padding(.horizontal, 20)
+            analyticsCard(title: "Preview") {
+                metricRow(label: "Total tracked items", value: "\(activeItems.count)")
+                metricRow(label: "Due in next 30 days", value: "\(ItemAnalytics.dueInNext(days: 30, items: items))")
+                metricRow(label: "Recurring monthly total", value: "Pro")
+                metricRow(label: "Highest recurring cost", value: "Pro")
             }
         }
     }
 
     private var proContent: some View {
         VStack(spacing: 16) {
-            quickStatsCard(includeTotals: true)
+            quickStatsCard(includePremiumMetrics: true)
 
             analyticsCard(title: "Recurring Costs") {
-                metricRow(label: "Monthly", value: AppFormatters.currencyString(amount: ItemAnalytics.monthlyRecurringTotal(from: items), currencyCode: Locale.current.currency?.identifier ?? "USD"))
-                metricRow(label: "Yearly", value: AppFormatters.currencyString(amount: ItemAnalytics.yearlyRecurringTotal(from: items), currencyCode: Locale.current.currency?.identifier ?? "USD"))
-                Divider().overlay(AppTheme.border)
-                metricRow(label: "Estimated Annual Total", value: AppFormatters.currencyString(amount: ItemAnalytics.annualRecurringEstimate(from: items), currencyCode: Locale.current.currency?.identifier ?? "USD"))
+                metricRow(label: "Monthly total", value: AppFormatters.currencyString(amount: ItemAnalytics.monthlyRecurringTotal(from: items), currencyCode: Locale.current.currency?.identifier ?? "USD"))
+                metricRow(label: "Yearly total", value: AppFormatters.currencyString(amount: ItemAnalytics.yearlyRecurringTotal(from: items), currencyCode: Locale.current.currency?.identifier ?? "USD"))
+                metricRow(label: "Estimated annual load", value: AppFormatters.currencyString(amount: ItemAnalytics.annualRecurringEstimate(from: items), currencyCode: Locale.current.currency?.identifier ?? "USD"))
+                metricRow(label: "Next 30 days", value: AppFormatters.currencyString(amount: ItemAnalytics.recurringDueInNextThirtyDaysTotal(from: items), currencyCode: Locale.current.currency?.identifier ?? "USD"))
+            }
+
+            analyticsCard(title: "Renewal Pressure") {
+                metricRow(label: "Due in next 30 days", value: "\(ItemAnalytics.dueInNext(days: 30, items: items))")
+                metricRow(label: "Due in next 7 days", value: "\(ItemAnalytics.dueInNext(days: 7, items: items))")
+                metricRow(label: "Expired", value: "\(ItemAnalytics.expiredItems(from: items).count)")
+                metricRow(label: "Renewal load this month", value: "\(ItemAnalytics.renewalLoadThisMonth(from: items))")
             }
 
             analyticsCard(title: "Category Breakdown") {
-                let breakdown = ItemAnalytics.categoryBreakdown(from: items)
-                ForEach(breakdown, id: \.0.id) { category, count in
+                ForEach(ItemAnalytics.categoryBreakdown(from: items), id: \.0.id) { category, count in
                     VStack(alignment: .leading, spacing: 6) {
                         HStack {
                             Text(category.title)
@@ -114,7 +103,7 @@ struct InsightsView: View {
                             ZStack(alignment: .leading) {
                                 Capsule().fill(AppTheme.fillSoft)
                                 Capsule().fill(color(for: category))
-                                    .frame(width: proxy.size.width * CGFloat(Double(count) / Double(max(1, ItemAnalytics.activeItems(from: items).count))))
+                                    .frame(width: proxy.size.width * CGFloat(Double(count) / Double(max(1, activeItems.count))))
                             }
                         }
                         .frame(height: 8)
@@ -122,15 +111,18 @@ struct InsightsView: View {
                 }
             }
 
-            analyticsCard(title: "Next 30 Days") {
-                metricRow(label: "Overdue", value: "\(ItemAnalytics.expiredItems(from: items).count)")
-                metricRow(label: "Due in next 30 days", value: "\(ItemAnalytics.dueInNext(days: 30, items: items))")
-                metricRow(label: "Due in next 7 days", value: "\(ItemAnalytics.dueInNext(days: 7, items: items))")
+            analyticsCard(title: "Highlights") {
+                metricRow(
+                    label: "Highest recurring cost",
+                    value: highestRecurringCostSummary
+                )
+                metricRow(label: "Expiring documents", value: "\(ItemAnalytics.expiringDocumentsCount(from: items))")
+                metricRow(label: "Next critical item", value: ItemAnalytics.criticalItem(from: items)?.title ?? "None")
             }
         }
     }
 
-    private func quickStatsCard(includeTotals: Bool) -> some View {
+    private func quickStatsCard(includePremiumMetrics: Bool) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 8) {
                 Image(systemName: "chart.line.uptrend.xyaxis")
@@ -141,15 +133,15 @@ struct InsightsView: View {
             }
 
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 2), spacing: 12) {
-                statTile(title: "Total Items", value: "\(ItemAnalytics.activeItems(from: items).count)")
-                statTile(title: "Due in 30 Days", value: "\(ItemAnalytics.dueInNext(days: 30, items: items))")
-                if includeTotals {
-                    statTile(title: "Expired", value: "\(ItemAnalytics.expiredItems(from: items).count)")
-                    statTile(title: "Due Soon", value: "\(ItemAnalytics.dueSoonItems(from: items).count)")
-                } else {
-                    statTile(title: "Due Soon", value: "\(ItemAnalytics.dueSoonItems(from: items).count)")
-                    statTile(title: "Locked", value: "Pro")
-                }
+                statTile(title: "Tracked Items", value: "\(activeItems.count)")
+                statTile(title: "Due Soon", value: "\(ItemAnalytics.dueSoonItems(from: items).count)")
+                statTile(title: "Expired", value: "\(ItemAnalytics.expiredItems(from: items).count)")
+                statTile(
+                    title: includePremiumMetrics ? "Monthly Total" : "Advanced",
+                    value: includePremiumMetrics
+                        ? AppFormatters.compactCurrencyString(amount: ItemAnalytics.monthlyRecurringTotal(from: items), currencyCode: Locale.current.currency?.identifier ?? "USD")
+                        : "Pro"
+                )
             }
         }
         .padding(20)
@@ -165,6 +157,8 @@ struct InsightsView: View {
             Text(value)
                 .font(.system(size: 24, weight: .bold))
                 .foregroundStyle(Color.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
@@ -183,26 +177,15 @@ struct InsightsView: View {
     }
 
     private func metricRow(label: String, value: String) -> some View {
-        HStack {
+        HStack(alignment: .firstTextBaseline) {
             Text(label)
                 .font(.system(size: 15))
                 .foregroundStyle(AppTheme.textSecondary)
             Spacer()
             Text(value)
-                .font(.system(size: 18, weight: .semibold))
+                .font(.system(size: 17, weight: .semibold))
                 .foregroundStyle(AppTheme.textPrimary)
-        }
-    }
-
-    private func lockedRow(label: String, value: String) -> some View {
-        HStack {
-            Text(label)
-                .font(.system(size: 15))
-                .foregroundStyle(AppTheme.textSecondary)
-            Spacer()
-            Text(value)
-                .font(.system(size: 20, weight: .bold))
-                .foregroundStyle(AppTheme.textPrimary)
+                .multilineTextAlignment(.trailing)
         }
     }
 
@@ -215,5 +198,15 @@ struct InsightsView: View {
         case .insurance: AppTheme.danger
         case .other: AppTheme.textSecondary
         }
+    }
+
+    private var highestRecurringCostSummary: String {
+        guard let item = ItemAnalytics.highestRecurringCostItem(from: items),
+              let amount = item.amount
+        else {
+            return "No recurring costs"
+        }
+
+        return "\(item.title) • \(AppFormatters.currencyString(amount: amount, currencyCode: item.currencyCode))"
     }
 }

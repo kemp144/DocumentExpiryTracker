@@ -36,4 +36,19 @@ final class ItemAnalyticsTests: XCTestCase {
         XCTAssertEqual(ItemAnalytics.dueInNext(days: 7, items: [today, inSeven, later], now: now), 2)
         XCTAssertEqual(ItemAnalytics.dueInNext(days: 30, items: [today, inSeven, later], now: now), 3)
     }
+
+    func testRecurringItemsRollForwardToNextOccurrence() {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let oldMonthly = TrackedItem(
+            title: "Netflix",
+            category: .subscription,
+            dueDate: Calendar.current.date(byAdding: .day, value: -40, to: now)!,
+            recurringInterval: .monthly,
+            amount: 15
+        )
+
+        let nextDueDate = ItemAnalytics.effectiveDueDate(for: oldMonthly, now: now)
+        XCTAssertGreaterThanOrEqual(nextDueDate, Calendar.current.startOfDay(for: now))
+        XCTAssertNotEqual(ItemAnalytics.status(for: oldMonthly, now: now), .expired)
+    }
 }

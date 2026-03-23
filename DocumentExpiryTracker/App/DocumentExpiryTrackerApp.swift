@@ -6,6 +6,7 @@ struct DocumentExpiryTrackerApp: App {
     @StateObject private var settings: AppSettings
     @StateObject private var purchaseManager: PurchaseManager
     @StateObject private var notificationManager: NotificationManager
+    @StateObject private var appLockManager: AppLockManager
 
     private let modelContainer: ModelContainer
 
@@ -13,9 +14,11 @@ struct DocumentExpiryTrackerApp: App {
         let settings = AppSettings()
         let purchaseManager = PurchaseManager()
         let notificationManager = NotificationManager()
+        let appLockManager = AppLockManager()
         _settings = StateObject(wrappedValue: settings)
         _purchaseManager = StateObject(wrappedValue: purchaseManager)
         _notificationManager = StateObject(wrappedValue: notificationManager)
+        _appLockManager = StateObject(wrappedValue: appLockManager)
 
         do {
             let schema = Schema([TrackedItem.self])
@@ -38,8 +41,20 @@ struct DocumentExpiryTrackerApp: App {
                 .environmentObject(settings)
                 .environmentObject(purchaseManager)
                 .environmentObject(notificationManager)
-                .preferredColorScheme(.dark)
+                .environmentObject(appLockManager)
+                .preferredColorScheme(preferredColorScheme)
         }
         .modelContainer(modelContainer)
+    }
+
+    private var preferredColorScheme: ColorScheme? {
+        switch settings.appearanceMode {
+        case .system:
+            nil
+        case .light:
+            .light
+        case .dark:
+            .dark
+        }
     }
 }

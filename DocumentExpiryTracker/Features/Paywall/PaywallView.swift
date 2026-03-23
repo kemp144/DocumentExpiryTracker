@@ -4,21 +4,22 @@ struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var purchaseManager: PurchaseManager
 
+    let context: PaywallContext
     let onUnlocked: (() -> Void)?
 
     @State private var isProcessing = false
     @State private var statusMessage: String?
 
-    init(onUnlocked: (() -> Void)? = nil) {
+    init(context: PaywallContext = .general, onUnlocked: (() -> Void)? = nil) {
+        self.context = context
         self.onUnlocked = onUnlocked
     }
 
-    private let features: [(symbol: String, title: String, message: String)] = [
-        ("chart.bar.xaxis", "Detailed Insights", "Track recurring costs, due counts, and category breakdowns."),
-        ("bell.badge.fill", "Unlimited Reminders", "Add multiple reminder times to every important item."),
-        ("creditcard.fill", "All Currencies", "Track spending in the currency that fits your life."),
-        ("sparkles", "Premium Utility", "Support an indie app that stays privacy-first and ad-free.")
-    ]
+    private var features: [PremiumFeature] {
+        let ordered = context.highlightedFeatures + PremiumFeature.allCases
+        var seen = Set<String>()
+        return ordered.filter { seen.insert($0.rawValue).inserted }
+    }
 
     var body: some View {
         NavigationStack {
@@ -35,11 +36,12 @@ struct PaywallView: View {
                             }
 
                         VStack(spacing: 10) {
-                            Text("Unlock Pro")
-                                .font(.system(size: 32, weight: .bold))
+                            Text(context.title)
+                                .font(.system(size: 30, weight: .bold))
                                 .foregroundStyle(Color.white)
+                                .multilineTextAlignment(.center)
 
-                            Text("Document Expiry Tracker Pro gives you unlimited items, multiple reminders, full insights, and all currencies in one calm, premium unlock.")
+                            Text(context.message)
                                 .font(.system(size: 17))
                                 .foregroundStyle(AppTheme.textSecondary)
                                 .multilineTextAlignment(.center)
@@ -48,14 +50,14 @@ struct PaywallView: View {
                     }
                     .padding(.top, 20)
 
-                    VStack(spacing: 18) {
-                        ForEach(features, id: \.title) { feature in
+                    VStack(alignment: .leading, spacing: 18) {
+                        ForEach(features, id: \.id) { feature in
                             HStack(alignment: .top, spacing: 14) {
                                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                                     .fill(LinearGradient(colors: [AppTheme.primary.opacity(0.18), AppTheme.purple.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing))
                                     .frame(width: 48, height: 48)
                                     .overlay {
-                                        Image(systemName: feature.symbol)
+                                        Image(systemName: feature.symbolName)
                                             .font(.system(size: 22, weight: .semibold))
                                             .foregroundStyle(AppTheme.primary)
                                     }
@@ -71,10 +73,6 @@ struct PaywallView: View {
                                 }
 
                                 Spacer()
-
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(.system(size: 20))
-                                    .foregroundStyle(AppTheme.success)
                             }
                         }
                     }
@@ -95,9 +93,10 @@ struct PaywallView: View {
 
                         Divider().overlay(AppTheme.border)
 
-                        Text("No subscription. No account. Just a permanent upgrade.")
+                        Text("Privacy-first, local-first, and built to stay calm. No subscription. No account. No ads.")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundStyle(Color.white.opacity(0.86))
+                            .multilineTextAlignment(.center)
                     }
                     .padding(24)
                     .frame(maxWidth: .infinity)
@@ -121,7 +120,7 @@ struct PaywallView: View {
                             .multilineTextAlignment(.center)
                     }
 
-                    Button(isProcessing ? "Working..." : "Unlock Pro for \(purchaseManager.priceLabel)") {
+                    Button(isProcessing ? "Working..." : context.ctaTitle + " for " + purchaseManager.priceLabel) {
                         Task { await performPurchase() }
                     }
                     .buttonStyle(AppFilledButtonStyle(isLarge: true))
@@ -144,7 +143,7 @@ struct PaywallView: View {
                             .foregroundStyle(AppTheme.textSecondary)
                     }
 
-                    Text("Your purchase supports independent development and keeps Document Expiry Tracker private, local-first, and ad-free.")
+                    Text("Document Expiry Tracker Pro helps protect renewals, subscriptions, warranties, contracts, and the details attached to them.")
                         .font(.system(size: 13))
                         .foregroundStyle(AppTheme.textMuted)
                         .multilineTextAlignment(.center)

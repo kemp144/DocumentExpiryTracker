@@ -32,18 +32,23 @@ struct ItemFormView: View {
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var purchaseManager: PurchaseManager
     @EnvironmentObject private var notificationManager: NotificationManager
+    @EnvironmentObject private var settings: AppSettings
     @Query private var allItems: [TrackedItem]
 
     let mode: ItemFormMode
 
     @State private var draft: ItemDraft
-    @State private var showingPaywall = false
+    @State private var paywallContext: PaywallContext?
     @State private var alertMessage: String?
     @State private var saveTaskInFlight = false
+    @State private var showingDatePicker = false
+    @State private var showingAdvancedDetails: Bool
 
     init(mode: ItemFormMode) {
         self.mode = mode
-        _draft = State(initialValue: mode.existingItem.map(ItemDraft.init) ?? ItemDraft())
+        let initialDraft = mode.existingItem.map(ItemDraft.init) ?? ItemDraft()
+        _draft = State(initialValue: initialDraft)
+        _showingAdvancedDetails = State(initialValue: mode.existingItem != nil || initialDraft.recurringInterval != .none || !initialDraft.notes.isEmpty || !initialDraft.owner.isEmpty || initialDraft.isArchived)
     }
 
     private var currencyOptions: [String] {
@@ -54,23 +59,23 @@ struct ItemFormView: View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 20) {
+                    if case .add = mode {
+                        templateSection
+                    }
+
                     categorySection
-                    textFieldSection(title: "Title", text: $draft.title, prompt: "e.g. Passport, Netflix, Car Insurance", id: "itemForm_title")
-                    textFieldSection(title: "Provider / Company", text: $draft.provider, prompt: "Optional")
-                    dateSection
-                    recurringSection
-                    amountSection
-                    textFieldSection(title: "Owner / Person", text: $draft.owner, prompt: "Optional")
+                    compactFieldSection(title: "Title", text: $draft.title, prompt: "Passport, Netflix, Car Insurance", id: "itemForm_title")
+                    compactFieldSection(title: "Provider / Company", text: $draft.provider, prompt: "Optional")
+                    dueDateSection
                     remindersSection
-                    notesSection
-                    archiveSection
+                    advancedDetailsSection
 
                     if notificationManager.authorizationStatus == .denied {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Notifications are off")
                                 .font(.system(size: 15, weight: .semibold))
                                 .foregroundStyle(AppTheme.textPrimary)
-                            Text("You can still save reminders here, but iPhone notifications are currently disabled in Settings.")
+                            Text("You can still save reminder times here, but iPhone notifications are currently disabled in Settings.")
                                 .font(.system(size: 14))
                                 .foregroundStyle(AppTheme.textSecondary)
                         }
@@ -114,13 +119,70 @@ struct ItemFormView: View {
             }
         }
         .preferredColorScheme(.dark)
-        .sheet(isPresented: $showingPaywall) {
-            PaywallView()
+        .sheet(item: $paywallContext) { context in
+            PaywallView(context: context)
+        }
+        .sheet(isPresented: $showingDatePicker) {
+            NavigationStack {
+                VStack {
+                    DatePicker(
+                        "Due date",
+                        selection: $draft.dueDate,
+                        displayedComponents: .date
+                    )
+                    .datePickerStyle(.graphical)
+                    .padding()
+                    Spacer()
+                }
+                .background(AppTheme.background.ignoresSafeArea())
+                .navigationTitle("Select Date")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Done") {
+                            showingDatePicker = false
+                        }
+                    }
+                }
+            }
+            .presentationDetents([.medium, .large])
         }
         .alert("Unable to Save", isPresented: Binding(get: { alertMessage != nil }, set: { if !$0 { alertMessage = nil } })) {
             Button("OK", role: .cancel) {}
         } message: {
             Text(alertMessage ?? "")
+        }
+    }
+
+    private var templateSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            sectionTitle("Quick Templates")
+            Text("Start with a common renewal and edit anything after.")
+                .font(.system(size: 13))
+                .foregroundStyle(AppTheme.textSecondary)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(QuickTemplate.all) { template in
+                        Button {
+                            applyTemplate(template)
+                        } label: {
+                            Text(template.title)
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundStyle(AppTheme.textPrimary)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 10)
+                                .background(AppTheme.fillSoft)
+                                .overlay(
+                                    Capsule()
+                                        .stroke(AppTheme.border, lineWidth: 1)
+                                )
+                                .clipShape(Capsule())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
         }
     }
 
@@ -153,44 +215,133 @@ struct ItemFormView: View {
         }
     }
 
-    private var dateSection: some View {
+    private var dueDateSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             sectionTitle("Due Date")
-            DatePicker(
-                "",
-                selection: $draft.dueDate,
-                displayedComponents: .date
-            )
-            .datePickerStyle(.graphical)
-            .labelsHidden()
-            .padding(.top, 4)
+            Button {
+                showingDatePicker = true
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "calendar")
+                        .font(.system(size: 18))
+                        .foregroundStyle(AppTheme.primary)
+                        .frame(width: 40, height: 40)
+                        .background(AppTheme.primary.opacity(0.12))
+                        .clipShape(Circle())
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(AppFormatters.shortDate.string(from: draft.dueDate))
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(AppTheme.textPrimary)
+                        Text("Tap to choose the next due or renewal date")
+                            .font(.system(size: 13))
+                            .foregroundStyle(AppTheme.textSecondary)
+                    }
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(AppTheme.textMuted)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(16)
+                .background(AppTheme.elevated)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(AppTheme.border, lineWidth: 1)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("itemForm_dueDate")
+        }
+    }
+
+    private var remindersSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            sectionTitle("Reminders")
+            Text("Choose when you want a heads-up before this item is due.")
+                .font(.system(size: 13))
+                .foregroundStyle(AppTheme.textSecondary)
+
+            FlexibleChipLayout(spacing: 8, lineSpacing: 8) {
+                ForEach(ReminderOffset.allCases) { offset in
+                    let selected = draft.reminders.contains(offset)
+                    Button(offset.title) {
+                        toggleReminder(offset)
+                    }
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(selected ? Color.white : AppTheme.textSecondary)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(selected ? AppTheme.primary : AppTheme.elevated)
+                    .overlay(
+                        Capsule()
+                            .stroke(selected ? AppTheme.primary : AppTheme.border, lineWidth: 1)
+                    )
+                    .clipShape(Capsule())
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("reminder_\(offset.rawValue)")
+                }
+            }
             .appCardStyle()
         }
+    }
+
+    private var advancedDetailsSection: some View {
+        DisclosureGroup(isExpanded: $showingAdvancedDetails) {
+            VStack(alignment: .leading, spacing: 18) {
+                recurringSection
+                amountSection
+                compactFieldSection(title: "Owner / Person", text: $draft.owner, prompt: "Optional")
+                notesSection
+                attachmentsHint
+                archiveSection
+            }
+            .padding(.top, 16)
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("More Details")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(AppTheme.textPrimary)
+                    Text("Add costs, notes, recurrence, and other optional details.")
+                        .font(.system(size: 13))
+                        .foregroundStyle(AppTheme.textSecondary)
+                }
+                Spacer()
+            }
+        }
+        .tint(AppTheme.textPrimary)
+        .appCardStyle()
     }
 
     private var recurringSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             sectionTitle("Recurring")
-            VStack(spacing: 12) {
-                Toggle(isOn: Binding(
-                    get: { draft.recurringInterval != .none },
-                    set: { draft.recurringInterval = $0 ? .monthly : .none }
-                )) {
-                    Text("Recurring")
+            Toggle(isOn: Binding(
+                get: { draft.recurringInterval != .none },
+                set: { draft.recurringInterval = $0 ? .monthly : .none }
+            )) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Repeat this item")
                         .font(.system(size: 15, weight: .medium))
                         .foregroundStyle(AppTheme.textPrimary)
-                }
-                .tint(AppTheme.success)
-
-                if draft.recurringInterval != .none {
-                    Picker("Interval", selection: $draft.recurringInterval) {
-                        Text("Monthly").tag(RecurringInterval.monthly)
-                        Text("Yearly").tag(RecurringInterval.yearly)
-                    }
-                    .pickerStyle(.segmented)
+                    Text("Great for subscriptions, insurance, and yearly renewals.")
+                        .font(.system(size: 13))
+                        .foregroundStyle(AppTheme.textSecondary)
                 }
             }
-            .appCardStyle()
+            .tint(AppTheme.success)
+
+            if draft.recurringInterval != .none {
+                Picker("Interval", selection: $draft.recurringInterval) {
+                    Text("Monthly").tag(RecurringInterval.monthly)
+                    Text("Yearly").tag(RecurringInterval.yearly)
+                }
+                .pickerStyle(.segmented)
+            }
         }
     }
 
@@ -207,7 +358,7 @@ struct ItemFormView: View {
                     if !purchaseManager.isProUnlocked {
                         Divider()
                         Button("Unlock all currencies") {
-                            showingPaywall = true
+                            paywallContext = .currencies
                         }
                     }
                 } label: {
@@ -246,37 +397,10 @@ struct ItemFormView: View {
         }
     }
 
-    private var remindersSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            sectionTitle("Reminders")
-            FlexibleChipLayout(spacing: 8, lineSpacing: 8) {
-                ForEach(ReminderOffset.allCases) { offset in
-                    let selected = draft.reminders.contains(offset)
-                    Button(offset.title) {
-                        toggleReminder(offset)
-                    }
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(selected ? Color.white : AppTheme.textSecondary)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
-                    .background(selected ? AppTheme.primary : AppTheme.elevated)
-                    .overlay(
-                        Capsule()
-                            .stroke(selected ? AppTheme.primary : AppTheme.border, lineWidth: 1)
-                    )
-                    .clipShape(Capsule())
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("reminder_\(offset.rawValue)")
-                }
-            }
-            .appCardStyle()
-        }
-    }
-
     private var notesSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             sectionTitle("Notes")
-            TextField("Add any additional notes...", text: $draft.notes, axis: .vertical)
+            TextField("Add any context you want to remember...", text: $draft.notes, axis: .vertical)
                 .lineLimit(4, reservesSpace: true)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 14)
@@ -289,6 +413,33 @@ struct ItemFormView: View {
                 .foregroundStyle(AppTheme.textPrimary)
                 .accessibilityIdentifier("itemForm_notes")
         }
+    }
+
+    private var attachmentsHint: some View {
+        Button {
+            paywallContext = purchaseManager.isProUnlocked ? nil : .attachments
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "paperclip")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(AppTheme.textSecondary)
+                    .frame(width: 40, height: 40)
+                    .background(AppTheme.fillSoft)
+                    .clipShape(Circle())
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Attachments")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(AppTheme.textPrimary)
+                    Text(purchaseManager.isProUnlocked ? "You can add files and scans after saving this item." : "Unlock Pro to attach scans, PDFs, and photos after saving.")
+                        .font(.system(size: 13))
+                        .foregroundStyle(AppTheme.textSecondary)
+                        .multilineTextAlignment(.leading)
+                }
+                Spacer()
+            }
+        }
+        .buttonStyle(.plain)
     }
 
     private var archiveSection: some View {
@@ -305,11 +456,10 @@ struct ItemFormView: View {
                 }
             }
             .tint(AppTheme.success)
-            .appCardStyle()
         }
     }
 
-    private func textFieldSection(title: String, text: Binding<String>, prompt: String, id: String? = nil) -> some View {
+    private func compactFieldSection(title: String, text: Binding<String>, prompt: String, id: String? = nil) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             sectionTitle(title)
             TextField(prompt, text: text)
@@ -333,13 +483,22 @@ struct ItemFormView: View {
             .foregroundStyle(AppTheme.textPrimary)
     }
 
+    private func applyTemplate(_ template: QuickTemplate) {
+        draft.title = template.title
+        draft.category = template.category
+        draft.provider = template.provider
+        draft.recurringInterval = template.recurringInterval
+        draft.reminders = template.defaultReminders
+        showingAdvancedDetails = showingAdvancedDetails || template.recurringInterval != .none
+    }
+
     private func toggleReminder(_ offset: ReminderOffset) {
         var next = draft.reminders
         if next.contains(offset) {
             next.remove(offset)
         } else {
             if !FeatureGate.canUseReminderCount(next.count + 1, isPro: purchaseManager.isProUnlocked) {
-                showingPaywall = true
+                paywallContext = .multipleReminders
                 return
             }
             next.insert(offset)
@@ -355,16 +514,17 @@ struct ItemFormView: View {
 
         if case .add = mode,
            !FeatureGate.canAddItem(existingItemCount: allItems.count, isPro: purchaseManager.isProUnlocked) {
-            showingPaywall = true
+            paywallContext = .itemLimit
             return
         }
 
         if !FeatureGate.canUseReminderCount(draft.reminders.count, isPro: purchaseManager.isProUnlocked) {
-            showingPaywall = true
+            paywallContext = .multipleReminders
             return
         }
 
         saveTaskInFlight = true
+        let shouldQueueSoftPrompt = !purchaseManager.isProUnlocked && allItems.isEmpty && !draft.reminders.isEmpty
 
         let savedItem: TrackedItem
         switch mode {
@@ -385,6 +545,9 @@ struct ItemFormView: View {
                     notificationManager.removeNotifications(for: savedItem)
                 } else {
                     await notificationManager.scheduleNotifications(for: savedItem)
+                }
+                if shouldQueueSoftPrompt {
+                    settings.queueSoftUpgradePromptIfNeeded()
                 }
                 WidgetSnapshotService.sync(context: modelContext, isProUnlocked: purchaseManager.isProUnlocked)
                 saveTaskInFlight = false

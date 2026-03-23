@@ -7,7 +7,7 @@ struct AppTabContainerView: View {
 
     @State private var selection: AppTab = .home
     @State private var showingAddSheet = false
-    @State private var showingPaywall = false
+    @State private var paywallContext: PaywallContext?
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -15,7 +15,7 @@ struct AppTabContainerView: View {
                 switch selection {
                 case .home:
                     NavigationStack {
-                        HomeView(onAddTapped: requestAdd)
+                        HomeView(onAddTapped: requestAdd, onUpgradeTapped: presentPaywall)
                     }
                 case .items:
                     NavigationStack {
@@ -23,11 +23,11 @@ struct AppTabContainerView: View {
                     }
                 case .insights:
                     NavigationStack {
-                        InsightsView(onUpgradeTapped: { showingPaywall = true })
+                        InsightsView(onUpgradeTapped: { presentPaywall(.insights) })
                     }
                 case .settings:
                     NavigationStack {
-                        SettingsView(onUpgradeTapped: { showingPaywall = true })
+                        SettingsView(onUpgradeTapped: presentPaywall)
                     }
                 }
             }
@@ -41,8 +41,8 @@ struct AppTabContainerView: View {
         .sheet(isPresented: $showingAddSheet) {
             ItemFormView(mode: .add)
         }
-        .sheet(isPresented: $showingPaywall) {
-            PaywallView()
+        .sheet(item: $paywallContext) { context in
+            PaywallView(context: context)
         }
         .appScreenBackground()
     }
@@ -51,7 +51,11 @@ struct AppTabContainerView: View {
         if FeatureGate.canAddItem(existingItemCount: allItems.count, isPro: purchaseManager.isProUnlocked) {
             showingAddSheet = true
         } else {
-            showingPaywall = true
+            presentPaywall(.itemLimit)
         }
+    }
+
+    private func presentPaywall(_ context: PaywallContext) {
+        paywallContext = context
     }
 }

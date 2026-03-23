@@ -100,6 +100,16 @@ final class DocumentExpiryTrackerUITests: XCTestCase {
         XCTAssertTrue(app.buttons["paywall_close"].waitForExistence(timeout: 2) || app.buttons["home_header_add"].exists)
     }
 
+    func testSoftUpgradeBannerAfterFirstItem() throws {
+        app.launch()
+        app.buttons["home_header_add"].tap()
+        let title = app.textFields["itemForm_title"]
+        title.tap()
+        title.typeText("Passport")
+        app.buttons["itemForm_save"].tap()
+        XCTAssertTrue(app.buttons["home_soft_upgrade"].waitForExistence(timeout: 2))
+    }
+
     func testSettingsRestorePurchasesEntryPointExists() throws {
         app.launch()
         app.buttons["tab_settings"].tap()

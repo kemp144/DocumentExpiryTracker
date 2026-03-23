@@ -99,7 +99,7 @@ struct ItemsView: View {
                 Text("Items")
                     .font(.system(size: 28, weight: .bold))
                     .foregroundStyle(AppTheme.textPrimary)
-                Text("Search, sort, and organize everything in one place")
+                Text("Search renewals, subscriptions, warranties, contracts, and more")
                     .font(.system(size: 15))
                     .foregroundStyle(AppTheme.textSecondary)
             }
@@ -207,6 +207,7 @@ struct ItemsView: View {
     }
 
     private func delete(_ item: TrackedItem) {
+        AttachmentStorage.deleteAll(item.attachments)
         notificationManager.removeNotifications(for: item)
         modelContext.delete(item)
         try? modelContext.save()

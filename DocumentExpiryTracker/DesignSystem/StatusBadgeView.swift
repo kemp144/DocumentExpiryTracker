@@ -19,11 +19,15 @@ struct StatusBadgeView: View {
 
     var body: some View {
         Text(text)
-            .font(.system(size: 11, weight: .medium))
+            .font(.system(size: 11, weight: .semibold))
             .foregroundStyle(colors.1)
             .padding(.horizontal, 10)
             .padding(.vertical, 6)
             .background(colors.0)
+            .overlay(
+                Capsule()
+                    .stroke(colors.1.opacity(0.18), lineWidth: 1)
+            )
             .clipShape(Capsule())
     }
 }
