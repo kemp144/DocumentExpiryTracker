@@ -40,9 +40,9 @@ enum PremiumFeature: String, CaseIterable, Identifiable {
         case .widgets:
             "See your next due item and renewal summary from the Home Screen."
         case .cloudSync:
-            "Keep your tracking setup ready for backup and syncing across devices."
+            "Keep your tracked items backed up and synced across devices with iCloud."
         case .attachments:
-            "Attach photos, scans, and PDFs to the items that matter most."
+            "Attach local photos, scans, and PDFs to the items that matter most."
         case .appLock:
             "Add a private lock screen for sensitive documents and contracts."
         case .advancedInsights:
@@ -136,9 +136,9 @@ enum PaywallContext: String, Identifiable {
         case .widgets:
             "See your next due item, due soon count, and recurring summary from your Home Screen."
         case .cloudSync:
-            "Prepare for backup and syncing across your devices while keeping the app local-first and privacy-conscious."
+            "Keep item data backed up with iCloud while keeping the app privacy-conscious. Attached files remain local."
         case .attachments:
-            "Keep scans, photos, and PDFs attached to the exact renewal or document they belong to."
+            "Keep scans, photos, and PDFs attached to the exact renewal or document they belong to (stored locally on this device)."
         case .appLock:
             "Protect sensitive items behind Face ID or biometrics without adding friction to the rest of the app."
         case .insights:

@@ -59,10 +59,6 @@ struct ItemFormView: View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 20) {
-                    if case .add = mode {
-                        templateSection
-                    }
-
                     categorySection
                     compactFieldSection(title: "Title", text: $draft.title, prompt: "Passport, Netflix, Car Insurance", id: "itemForm_title")
                     compactFieldSection(title: "Provider / Company", text: $draft.provider, prompt: "Optional")
@@ -149,38 +145,6 @@ struct ItemFormView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text(alertMessage ?? "")
-        }
-    }
-
-    private var templateSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            sectionTitle("Quick Templates")
-            Text("Start with a common renewal and edit anything after.")
-                .font(.system(size: 13))
-                .foregroundStyle(AppTheme.textSecondary)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(QuickTemplate.all) { template in
-                        Button {
-                            applyTemplate(template)
-                        } label: {
-                            Text(template.title)
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundStyle(AppTheme.textPrimary)
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 10)
-                                .background(AppTheme.fillSoft)
-                                .overlay(
-                                    Capsule()
-                                        .stroke(AppTheme.border, lineWidth: 1)
-                                )
-                                .clipShape(Capsule())
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            }
         }
     }
 
@@ -479,15 +443,6 @@ struct ItemFormView: View {
         Text(text)
             .font(.system(size: 14, weight: .semibold))
             .foregroundStyle(AppTheme.textPrimary)
-    }
-
-    private func applyTemplate(_ template: QuickTemplate) {
-        draft.title = template.title
-        draft.category = template.category
-        draft.provider = template.provider
-        draft.recurringInterval = template.recurringInterval
-        draft.reminders = template.defaultReminders
-        showingAdvancedDetails = showingAdvancedDetails || template.recurringInterval != .none
     }
 
     private func toggleReminder(_ offset: ReminderOffset) {

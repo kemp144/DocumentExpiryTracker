@@ -3,7 +3,7 @@ import Foundation
 struct ICloudSyncStatus {
     let title: String
     let message: String
-    let isAvailableForThisBuild: Bool
+    let isActive: Bool
 }
 
 enum ICloudSyncStatusService {
@@ -11,24 +11,24 @@ enum ICloudSyncStatusService {
         guard isProUnlocked else {
             return ICloudSyncStatus(
                 title: "Pro required",
-                message: "Upgrade to Pro to prepare for backup and syncing across your devices.",
-                isAvailableForThisBuild: false
+                message: "Upgrade to Pro to enable iCloud backup and item sync across your devices.",
+                isActive: false
             )
         }
 
         let hasICloudAccount = FileManager.default.ubiquityIdentityToken != nil
-        if hasICloudAccount {
+        guard hasICloudAccount else {
             return ICloudSyncStatus(
-                title: "iCloud available",
-                message: "This build is still storing data locally. Native CloudKit syncing can be enabled once an iCloud container is connected for release.",
-                isAvailableForThisBuild: false
+                title: "iCloud unavailable",
+                message: "Sign in to iCloud in iPhone Settings to enable item backup and sync.",
+                isActive: false
             )
         }
 
         return ICloudSyncStatus(
-            title: "iCloud unavailable",
-            message: "Sign in to iCloud on this device to prepare for future backup and sync support. Your data stays local for now.",
-            isAvailableForThisBuild: false
+            title: "Active",
+            message: "Your item data is backed up and syncing across devices. Attached files remain local for now.",
+            isActive: true
         )
     }
 }

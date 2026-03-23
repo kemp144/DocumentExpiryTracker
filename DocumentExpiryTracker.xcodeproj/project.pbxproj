@@ -103,11 +103,11 @@
 /* Begin PBXFileReference section */
 		03297B397C73AF6277A1E1A4 /* ItemsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsView.swift; sourceTree = "<group>"; };
 		11D02D8B3F9BCB417ACEFD00 /* AppBootstrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBootstrapper.swift; sourceTree = "<group>"; };
-		1D4EA99FAF9C543962921781 /* DocumentExpiryTracker.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DocumentExpiryTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D4EA99FAF9C543962921781 /* Document Expiry Tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Document Expiry Tracker.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		22314AA9BDDD0F5EB488D8A6 /* DocumentExpiryTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentExpiryTrackerApp.swift; sourceTree = "<group>"; };
 		28CB7CE55713A15DFC01E0F1 /* NextDueWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextDueWidget.swift; sourceTree = "<group>"; };
 		2C0A11491BB4BA9D30F5F8C6 /* DocumentExpiryTrackerUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = DocumentExpiryTrackerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		2D08BFAE35FCE6FE827857FB /* DocumentExpiryTrackerWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = DocumentExpiryTrackerWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		2D08BFAE35FCE6FE827857FB /* DocumentExpiryTrackerWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; name = DocumentExpiryTrackerWidgets.appex; path = "Document Expiry Tracker Widget.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2EB25855AA7256D1A79F6C40 /* CustomTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBar.swift; sourceTree = "<group>"; };
 		31008D7B1C91793522AB56E6 /* QuickTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickTemplate.swift; sourceTree = "<group>"; };
 		399675F5E1D4CAE533C3DA07 /* ItemDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailView.swift; sourceTree = "<group>"; };
@@ -271,7 +271,7 @@
 		7B66C9AC3FDC76DD95CD0753 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1D4EA99FAF9C543962921781 /* DocumentExpiryTracker.app */,
+				1D4EA99FAF9C543962921781 /* Document Expiry Tracker.app */,
 				2C0A11491BB4BA9D30F5F8C6 /* DocumentExpiryTrackerUITests.xctest */,
 				4AA64FB22A88FF9919830943 /* DocumentExpiryTrackerUnitTests.xctest */,
 				2D08BFAE35FCE6FE827857FB /* DocumentExpiryTrackerWidgets.appex */,
@@ -507,7 +507,7 @@
 			packageProductDependencies = (
 			);
 			productName = DocumentExpiryTracker;
-			productReference = 1D4EA99FAF9C543962921781 /* DocumentExpiryTracker.app */;
+			productReference = 1D4EA99FAF9C543962921781 /* Document Expiry Tracker.app */;
 			productType = "com.apple.product-type.application";
 		};
 		DD868B69C00BAA33C1B5C64B /* DocumentExpiryTrackerUITests */ = {
@@ -556,10 +556,23 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					50E45C6E8C82AB279635B559 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = 7B8JYS7JC8;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
 					};
 					97AEABFC434BB20A3EC21F4F = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = 7B8JYS7JC8;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+							com.apple.iCloud = {
+								enabled = 1;
+							};
+						};
 					};
 					DD868B69C00BAA33C1B5C64B = {
 						DevelopmentTeam = "";
@@ -707,6 +720,8 @@
 		26F9E108A2D6DBB089438350 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 7B8JYS7JC8;
 				CODE_SIGN_ENTITLEMENTS = DocumentExpiryTrackerWidgets/DocumentExpiryTrackerWidgets.entitlements;
 				INFOPLIST_FILE = DocumentExpiryTrackerWidgets/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -783,6 +798,8 @@
 		5BA8BF500D0D3CD3B791412E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 7B8JYS7JC8;
 				CODE_SIGN_ENTITLEMENTS = DocumentExpiryTrackerWidgets/DocumentExpiryTrackerWidgets.entitlements;
 				INFOPLIST_FILE = DocumentExpiryTrackerWidgets/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -804,8 +821,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = DocumentExpiryTracker/App/DocumentExpiryTracker.entitlements;
+				CODE_SIGN_STYLE = Automatic;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7B8JYS7JC8;
 				INFOPLIST_FILE = DocumentExpiryTracker/App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -845,8 +864,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = DocumentExpiryTracker/App/DocumentExpiryTracker.entitlements;
+				CODE_SIGN_STYLE = Automatic;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7B8JYS7JC8;
 				INFOPLIST_FILE = DocumentExpiryTracker/App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (

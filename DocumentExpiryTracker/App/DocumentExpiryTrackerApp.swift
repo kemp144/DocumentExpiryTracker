@@ -23,13 +23,23 @@ struct DocumentExpiryTrackerApp: App {
         do {
             let schema = Schema([TrackedItem.self])
             let arguments = ProcessInfo.processInfo.arguments
-            let configuration: ModelConfiguration
             if arguments.contains("UITEST_IN_MEMORY_STORE") {
-                configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+                let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+                modelContainer = try ModelContainer(for: schema, configurations: [configuration])
             } else {
-                configuration = ModelConfiguration(schema: schema)
+                // Attempt CloudKit-backed container first; fall back to local if CloudKit
+                // is unavailable (e.g. simulator without a signed team, or missing container).
+                do {
+                    let configuration = ModelConfiguration(
+                        schema: schema,
+                        cloudKitDatabase: .private("iCloud.com.expiryvault.app")
+                    )
+                    modelContainer = try ModelContainer(for: schema, configurations: [configuration])
+                } catch {
+                    let configuration = ModelConfiguration(schema: schema)
+                    modelContainer = try ModelContainer(for: schema, configurations: [configuration])
+                }
             }
-            modelContainer = try ModelContainer(for: schema, configurations: [configuration])
         } catch {
             fatalError("Unable to create model container: \(error)")
         }

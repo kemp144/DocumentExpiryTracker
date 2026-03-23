@@ -3,21 +3,26 @@ import SwiftData
 
 @Model
 final class TrackedItem {
-    @Attribute(.unique) var id: UUID
-    var title: String
-    var categoryRaw: String
-    var provider: String
-    var dueDate: Date
-    var recurringIntervalRaw: String
+    // Default values are required for CloudKit sync (NSPersistentCloudKitContainer
+    // demands every non-optional attribute to have a default it can use when
+    // materialising records received from the cloud).
+    // Note: @Attribute(.unique) is not supported with CloudKit — CloudKit enforces
+    // uniqueness via CKRecord.ID which SwiftData maps automatically.
+    var id: UUID = UUID()
+    var title: String = ""
+    var categoryRaw: String = ItemCategory.other.rawValue
+    var provider: String = ""
+    var dueDate: Date = Date.now
+    var recurringIntervalRaw: String = RecurringInterval.none.rawValue
     var amount: Double?
-    var currencyCode: String
-    var notesText: String
-    var ownerName: String
-    var reminderOffsetsRaw: String
-    var attachmentRecordsRaw: String
+    var currencyCode: String = "USD"
+    var notesText: String = ""
+    var ownerName: String = ""
+    var reminderOffsetsRaw: String = ""
+    var attachmentRecordsRaw: String = "[]"
     var archivedAt: Date?
-    var createdAt: Date
-    var updatedAt: Date
+    var createdAt: Date = Date.now
+    var updatedAt: Date = Date.now
 
     init(
         id: UUID = UUID(),

@@ -221,23 +221,29 @@ struct ItemDetailView: View {
 
             if purchaseManager.isProUnlocked {
                 if item.attachments.isEmpty {
-                    Text("Attach scans, photos, or PDFs so everything important stays with this item.")
+                    Text("Attach scans, photos, or PDFs. Files stay securely on this device.")
                         .font(.system(size: 14))
                         .foregroundStyle(AppTheme.textSecondary)
                 } else {
-                    VStack(spacing: 10) {
-                        ForEach(item.attachments) { attachment in
-                            AttachmentRowView(attachment: attachment) {
-                                previewDocument = PreviewDocument(url: AttachmentStorage.fileURL(for: attachment))
-                            } onDelete: {
-                                deleteAttachment(attachment)
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Attachments are stored locally on this device.")
+                            .font(.system(size: 13))
+                            .foregroundStyle(AppTheme.textMuted)
+                        
+                        VStack(spacing: 10) {
+                            ForEach(item.attachments) { attachment in
+                                AttachmentRowView(attachment: attachment) {
+                                    previewDocument = PreviewDocument(url: AttachmentStorage.fileURL(for: attachment))
+                                } onDelete: {
+                                    deleteAttachment(attachment)
+                                }
                             }
                         }
                     }
                 }
             } else {
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("Unlock Pro to add scans, images, and PDFs to this item.")
+                    Text("Unlock Pro to add local scans, images, and PDFs to this item.")
                         .font(.system(size: 14))
                         .foregroundStyle(AppTheme.textSecondary)
                     Button("Unlock Attachments") {
@@ -589,10 +595,16 @@ private struct AttachmentRowView: View {
     let onDelete: () -> Void
 
     var body: some View {
+        let fileURL = AttachmentStorage.fileURL(for: attachment)
+        let fileExists = FileManager.default.fileExists(atPath: fileURL.path)
+        
         HStack(spacing: 12) {
-            Button(action: onPreview) {
+            Button(action: {
+                if fileExists { onPreview() }
+            }) {
                 if attachment.kind == .image,
-                   let data = try? Data(contentsOf: AttachmentStorage.fileURL(for: attachment)),
+                   fileExists,
+                   let data = try? Data(contentsOf: fileURL),
                    let uiImage = UIImage(data: data) {
                     Image(uiImage: uiImage)
                         .resizable()
@@ -601,27 +613,41 @@ private struct AttachmentRowView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                         .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(AppTheme.border, lineWidth: 1))
                 } else {
-                    Image(systemName: attachment.kind.symbolName)
+                    Image(systemName: fileExists ? attachment.kind.symbolName : "cloud.slash.fill")
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(AppTheme.primary)
+                        .foregroundStyle(fileExists ? AppTheme.primary : AppTheme.textMuted)
                         .frame(width: 44, height: 44)
-                        .background(AppTheme.primary.opacity(0.12))
+                        .background(fileExists ? AppTheme.primary.opacity(0.12) : AppTheme.fillSoft)
                         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 }
             }
             .buttonStyle(.plain)
+            .disabled(!fileExists)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(attachment.originalName)
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(AppTheme.textPrimary)
                     .lineLimit(1)
-                Text(attachment.kind.title)
-                    .font(.system(size: 12))
-                    .foregroundStyle(AppTheme.textSecondary)
+                
+                if fileExists {
+                    Text(attachment.kind.title)
+                        .font(.system(size: 12))
+                        .foregroundStyle(AppTheme.textSecondary)
+                } else {
+                    Text("Stored on another device")
+                        .font(.system(size: 12))
+                        .foregroundStyle(AppTheme.textMuted)
+                }
             }
 
             Spacer()
+
+            if fileExists {
+                Button("Preview", action: onPreview)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(AppTheme.primary)
+            }
 
             Button(role: .destructive, action: onDelete) {
                 Image(systemName: "trash")

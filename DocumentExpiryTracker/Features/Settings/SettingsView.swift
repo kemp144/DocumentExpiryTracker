@@ -33,7 +33,7 @@ struct SettingsView: View {
                     Text("Settings")
                         .font(.system(size: 28, weight: .bold))
                         .foregroundStyle(AppTheme.textPrimary)
-                    Text("Privacy-first tracking for renewals, subscriptions, and important due dates")
+                    Text("Privacy-first tracking for renewals, subscriptions, warranties, and important due dates")
                         .font(.system(size: 15))
                         .foregroundStyle(AppTheme.textSecondary)
                 }
@@ -83,7 +83,7 @@ struct SettingsView: View {
                             .foregroundStyle(AppTheme.textPrimary)
                             .lineSpacing(3)
 
-                        Text("Pro unlocks extra protection like widgets, attachments, Face ID lock, advanced insights, and room to track everything important in one place.")
+                        Text("Pro unlocks extra protection like widgets, local attachments, Face ID lock, advanced insights, and room to track everything important in one place.")
                             .font(.system(size: 15))
                             .foregroundStyle(AppTheme.textSecondary)
                             .lineSpacing(3)
@@ -124,33 +124,34 @@ struct SettingsView: View {
     }
 
     private var privacyHero: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 14) {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(Color.white.opacity(0.18))
-                    .frame(width: 64, height: 64)
-                    .overlay {
-                        Image(systemName: "shield.fill")
-                            .font(.system(size: 30))
-                            .foregroundStyle(Color.white)
-                    }
-                VStack(alignment: .leading, spacing: 4) {
+        HStack(alignment: .top, spacing: 14) {
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color.white.opacity(0.18))
+                .frame(width: 48, height: 48)
+                .overlay {
+                    Image(systemName: "shield.fill")
+                        .font(.system(size: 22))
+                        .foregroundStyle(Color.white)
+                }
+
+            VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text("Private by default")
-                        .font(.system(size: 22, weight: .bold))
+                        .font(.system(size: 17, weight: .bold))
                         .foregroundStyle(Color.white)
                     Text("Your tracking stays local-first")
-                        .font(.system(size: 14))
+                        .font(.system(size: 13))
                         .foregroundStyle(Color.white.opacity(0.8))
                 }
+                VStack(alignment: .leading, spacing: 5) {
+                    bulletPoint("Stored securely on your device")
+                    bulletPoint("Local reminders only")
+                    bulletPoint("No account or sign-in required")
+                }
             }
-            VStack(alignment: .leading, spacing: 6) {
-                bulletPoint("Stored securely on your device")
-                bulletPoint("Local reminders only")
-                bulletPoint("No account or sign-in required")
-            }
-            .padding(.top, 4)
         }
-        .padding(22)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(20)
         .background(AppTheme.cardGradient)
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         .padding(.horizontal, 16)
@@ -197,13 +198,29 @@ struct SettingsView: View {
                         .foregroundStyle(AppTheme.textSecondary)
                 }
                 Spacer()
-                Picker("Currency", selection: $settings.defaultCurrency) {
-                    ForEach(FeatureGate.availableCurrencies(isPro: true), id: \.self) { code in
-                        Text(code).tag(code)
+                if purchaseManager.isProUnlocked {
+                    Picker("Currency", selection: $settings.defaultCurrency) {
+                        ForEach(FeatureGate.availableCurrencies(isPro: true), id: \.self) { code in
+                            Text(code).tag(code)
+                        }
                     }
+                    .pickerStyle(.menu)
+                    .tint(AppTheme.primary)
+                } else {
+                    Button {
+                        onUpgradeTapped(.currencies)
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(settings.defaultCurrency)
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundStyle(AppTheme.textSecondary)
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundStyle(AppTheme.textMuted)
+                        }
+                    }
+                    .buttonStyle(.plain)
                 }
-                .pickerStyle(.menu)
-                .tint(AppTheme.primary)
             }
             .padding(16)
 
@@ -272,20 +289,21 @@ struct SettingsView: View {
             Divider().overlay(AppTheme.border)
             
             Button {
-                if purchaseManager.isProUnlocked {
-                    statusMessage = "Add to Calendar is available from any item's detail screen."
-                } else {
+                if !purchaseManager.isProUnlocked {
                     onUpgradeTapped(.calendarIntegration)
                 }
             } label: {
                 settingsRow(
                     symbol: "calendar.badge.plus",
-                    title: "Calendar Integration",
-                    subtitle: "Send upcoming renewals directly to Apple Calendar.",
+                    title: "Add to Calendar",
+                    subtitle: purchaseManager.isProUnlocked
+                        ? "Available on any item's detail screen — tap to add a renewal to Apple Calendar."
+                        : "Add renewals and due dates directly to Apple Calendar.",
                     value: purchaseManager.isProUnlocked ? "Ready" : "Pro"
                 )
             }
             .buttonStyle(.plain)
+            .disabled(purchaseManager.isProUnlocked)
         }
         .padding(.horizontal, 16)
     }
