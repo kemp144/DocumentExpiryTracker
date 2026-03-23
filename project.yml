@@ -1,0 +1,107 @@
+name: DocumentExpiryTracker
+options:
+  bundleIdPrefix: com.expiryvault
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: 5.0
+    IPHONEOS_DEPLOYMENT_TARGET: 17.0
+    DEVELOPMENT_TEAM: ""
+packages: {}
+targets:
+  DocumentExpiryTracker:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: DocumentExpiryTracker
+        excludes:
+          - Resources
+    entitlements:
+      path: DocumentExpiryTracker/App/DocumentExpiryTracker.entitlements
+    info:
+      path: DocumentExpiryTracker/App/Info.plist
+      properties:
+        CFBundleDisplayName: Document Expiry Tracker
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        NSUserNotificationsUsageDescription: Document Expiry Tracker uses notifications to remind you before items expire or renew.
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.expiryvault.app
+        PRODUCT_NAME: Document Expiry Tracker
+        TARGETED_DEVICE_FAMILY: "1"
+        SUPPORTS_MACCATALYST: NO
+        CODE_SIGN_ENTITLEMENTS: DocumentExpiryTracker/App/DocumentExpiryTracker.entitlements
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 1.0.0
+    dependencies:
+      - target: DocumentExpiryTrackerWidgets
+        embed: true
+  DocumentExpiryTrackerWidgets:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: DocumentExpiryTrackerWidgets
+      - path: DocumentExpiryTracker/Services/WidgetSync/WidgetSnapshotModels.swift
+      - path: DocumentExpiryTracker/Models/ItemCategory.swift
+    entitlements:
+      path: DocumentExpiryTrackerWidgets/DocumentExpiryTrackerWidgets.entitlements
+    info:
+      path: DocumentExpiryTrackerWidgets/Info.plist
+      properties:
+        CFBundleDisplayName: Document Expiry Tracker Widget
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.expiryvault.app.widget
+        PRODUCT_NAME: Document Expiry Tracker Widget
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_ENTITLEMENTS: DocumentExpiryTrackerWidgets/DocumentExpiryTrackerWidgets.entitlements
+        SKIP_INSTALL: YES
+  DocumentExpiryTrackerUnitTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Tests/UnitTests
+    info:
+      path: Tests/UnitTests/Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.expiryvault.app.tests
+        GENERATE_INFOPLIST_FILE: NO
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Document Expiry Tracker.app/Document Expiry Tracker"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+    dependencies:
+      - target: DocumentExpiryTracker
+  DocumentExpiryTrackerUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Tests/UITests
+    info:
+      path: Tests/UITests/Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.expiryvault.app.uitests
+        GENERATE_INFOPLIST_FILE: NO
+        TEST_TARGET_NAME: DocumentExpiryTracker
+    dependencies:
+      - target: DocumentExpiryTracker
+schemes:
+  DocumentExpiryTracker:
+    build:
+      targets:
+        DocumentExpiryTracker: all
+        DocumentExpiryTrackerWidgets: [run, profile]
+        DocumentExpiryTrackerUnitTests: [test]
+        DocumentExpiryTrackerUITests: [test]
+    test:
+      targets:
+        - DocumentExpiryTrackerUnitTests
+        - DocumentExpiryTrackerUITests

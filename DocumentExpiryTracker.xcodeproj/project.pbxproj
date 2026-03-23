@@ -1,0 +1,934 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0841B5446228C610390C5F1F /* AppBootstrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11D02D8B3F9BCB417ACEFD00 /* AppBootstrapper.swift */; };
+		0ED2FCE105486E8790CD4E5E /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5509783FAC53D6034E418AE /* EmptyStateView.swift */; };
+		14437B681FC87C57D564E8C8 /* FeatureGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C4BEAB51D6120374747083A /* FeatureGate.swift */; };
+		1561EE2701F3F65E46F602A4 /* ItemAnalytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 970D040D83EFAD25035AB62A /* ItemAnalytics.swift */; };
+		1E1B81B30D3DF4D5E7BBCBC0 /* CustomTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EB25855AA7256D1A79F6C40 /* CustomTabBar.swift */; };
+		20118B289C9D7517FC48FA5A /* DocumentExpiryTrackerWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF2B49DFE3C122E78EC00A23 /* DocumentExpiryTrackerWidgetsBundle.swift */; };
+		2241C7B4811763745C5A9D0D /* DocumentExpiryTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22314AA9BDDD0F5EB488D8A6 /* DocumentExpiryTrackerApp.swift */; };
+		2638EC9A661951409F3DD8E9 /* ItemCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE3B0F8705F0A54BD881C0C /* ItemCardView.swift */; };
+		27013A6F5F47A6508E66EEB2 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E426A3B95E948C12E4DDE5DD /* AppSettings.swift */; };
+		27581DC98C9F99491A41D3FC /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B5A24B7690719724D94C21A /* Formatters.swift */; };
+		28BDBA4726AE3D33EFD132B4 /* NextDueWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28CB7CE55713A15DFC01E0F1 /* NextDueWidget.swift */; };
+		2A3F96727A4753154CFCB830 /* StatusBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4D3DDE9692DDF25D9215574 /* StatusBadgeView.swift */; };
+		365379CBA6EC5F110DBEEFC3 /* WidgetSnapshotService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDE5E2EA54D7792962476C86 /* WidgetSnapshotService.swift */; };
+		3C6AC07AAE5D1C4843FBB4E2 /* ItemCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F0882FAD5F042C02882BA20 /* ItemCategory.swift */; };
+		40476B79296149BE171F2E5B /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0AD07D7CC9FF04834D13266 /* PaywallView.swift */; };
+		457A75F2B23E0EEB0EBCA223 /* DocumentExpiryTrackerWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2D08BFAE35FCE6FE827857FB /* DocumentExpiryTrackerWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		554A3954FA4B57726C4D5388 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D602BAB7FA0C3C636DEE73E /* AppTheme.swift */; };
+		57802DBA9AE97469A901F073 /* PurchaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 963DC4B6FC68D8D43E72BF45 /* PurchaseManager.swift */; };
+		628B3D21AE4C58C3D229B8A9 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9963136E67B31B52AB7A4943 /* OnboardingFlowView.swift */; };
+		64FBD55F1C1793970B2C4EF4 /* ItemCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F0882FAD5F042C02882BA20 /* ItemCategory.swift */; };
+		6A00B9E73755BE1E4002D64A /* ItemDraftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A172685CA574E81872DFCB0B /* ItemDraftTests.swift */; };
+		6CF10E2CBF91BBA0BA17B450 /* CategoryIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B39308C87AA0207312FAF6C2 /* CategoryIconView.swift */; };
+		78DB8BB3526397EC11922237 /* ItemFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9408A4428C92118A39E50DE /* ItemFormView.swift */; };
+		7AF033FB1653E3C9A373B4C8 /* WidgetSnapshotModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A077B77AE817D86C1858BD4F /* WidgetSnapshotModels.swift */; };
+		81BEFACBBF01A55B7EA0D139 /* DocumentExpiryTrackerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AE2B255386629B7072DE9E2 /* DocumentExpiryTrackerUITests.swift */; };
+		893638138973148098AC3E61 /* InsightsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 910A2326F4F17BB8F83CCAEF /* InsightsView.swift */; };
+		8CA6A7555DAD5CE0096A3934 /* TrackedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD1FFEAC5D8A85DC670C316 /* TrackedItem.swift */; };
+		8ED2219F3ECC7262132A23B3 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CB07A67C45623B912A81E44 /* HomeView.swift */; };
+		A0C2E7A6C675D751726D4931 /* AppTabContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5EB1EFD436F3A44DFC07FC3 /* AppTabContainerView.swift */; };
+		A126C809A9709D6D9DF6B8FC /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54DDC272701E570CE4A7E712 /* RootView.swift */; };
+		A8CF0F64AFE4FE948DA3737E /* FeatureGateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4935B8369004292020E29C3 /* FeatureGateTests.swift */; };
+		C07345DDC1FDC6175A007188 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1383E76C37275AFF8677EDF /* SettingsView.swift */; };
+		C1DAAE7C2291B1A8F51DBB91 /* ItemsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03297B397C73AF6277A1E1A4 /* ItemsView.swift */; };
+		C7C01D56BCC05C6B3621516F /* ItemAnalyticsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91A1A9EA10EBBD7B0EFDCD84 /* ItemAnalyticsTests.swift */; };
+		D054B32AFC18B8A341F189C5 /* ReminderOffset.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975C53EE2BF82A2C5D29F8E5 /* ReminderOffset.swift */; };
+		DAD94B742F16F2B2BA0843DA /* ItemSortOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94E6E509CD44883E46AB4B9 /* ItemSortOption.swift */; };
+		E55E6BACB818BEE3889BD82D /* RecurringInterval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B1EBB804365E6AAF1C74088 /* RecurringInterval.swift */; };
+		E88AC13E7188BCBB49F920C5 /* ItemDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399675F5E1D4CAE533C3DA07 /* ItemDetailView.swift */; };
+		F5A8C57187883DE5849B1D3B /* ItemStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E585500D5551DA6FBA8E167 /* ItemStatus.swift */; };
+		FA366EF41588C3267ED13FFD /* WidgetSnapshotModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A077B77AE817D86C1858BD4F /* WidgetSnapshotModels.swift */; };
+		FB8DED7C0665D9B66ACAB9D0 /* ItemDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D2D123EEE66FDADA7872810 /* ItemDraft.swift */; };
+		FC6DFD38E2D9AA3B56344DB2 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 687EAC18AE0D369E19898987 /* NotificationManager.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		286719A110254DAFAAC2C0AA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 943FED138E3063F29284E82A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 97AEABFC434BB20A3EC21F4F;
+			remoteInfo = DocumentExpiryTracker;
+		};
+		CBBE7BCC101681EA6761B08D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 943FED138E3063F29284E82A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 97AEABFC434BB20A3EC21F4F;
+			remoteInfo = DocumentExpiryTracker;
+		};
+		D4EBF667AE109D3C54949194 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 943FED138E3063F29284E82A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 50E45C6E8C82AB279635B559;
+			remoteInfo = DocumentExpiryTrackerWidgets;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		0509F5FD6C5236EB5BB3DA61 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				457A75F2B23E0EEB0EBCA223 /* DocumentExpiryTrackerWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		03297B397C73AF6277A1E1A4 /* ItemsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemsView.swift; sourceTree = "<group>"; };
+		11D02D8B3F9BCB417ACEFD00 /* AppBootstrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBootstrapper.swift; sourceTree = "<group>"; };
+		1D4EA99FAF9C543962921781 /* DocumentExpiryTracker.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DocumentExpiryTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		22314AA9BDDD0F5EB488D8A6 /* DocumentExpiryTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentExpiryTrackerApp.swift; sourceTree = "<group>"; };
+		28CB7CE55713A15DFC01E0F1 /* NextDueWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextDueWidget.swift; sourceTree = "<group>"; };
+		2C0A11491BB4BA9D30F5F8C6 /* DocumentExpiryTrackerUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = DocumentExpiryTrackerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2D08BFAE35FCE6FE827857FB /* DocumentExpiryTrackerWidgets.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = DocumentExpiryTrackerWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		2EB25855AA7256D1A79F6C40 /* CustomTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBar.swift; sourceTree = "<group>"; };
+		399675F5E1D4CAE533C3DA07 /* ItemDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDetailView.swift; sourceTree = "<group>"; };
+		48DBDF47B0C1D90440693154 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		4AA64FB22A88FF9919830943 /* DocumentExpiryTrackerUnitTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = DocumentExpiryTrackerUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		54DDC272701E570CE4A7E712 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		5AE2B255386629B7072DE9E2 /* DocumentExpiryTrackerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentExpiryTrackerUITests.swift; sourceTree = "<group>"; };
+		5B1EBB804365E6AAF1C74088 /* RecurringInterval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurringInterval.swift; sourceTree = "<group>"; };
+		687EAC18AE0D369E19898987 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		746DCAD355FBBE53C47E3D77 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		910A2326F4F17BB8F83CCAEF /* InsightsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InsightsView.swift; sourceTree = "<group>"; };
+		91A1A9EA10EBBD7B0EFDCD84 /* ItemAnalyticsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemAnalyticsTests.swift; sourceTree = "<group>"; };
+		963DC4B6FC68D8D43E72BF45 /* PurchaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseManager.swift; sourceTree = "<group>"; };
+		970D040D83EFAD25035AB62A /* ItemAnalytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemAnalytics.swift; sourceTree = "<group>"; };
+		975C53EE2BF82A2C5D29F8E5 /* ReminderOffset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderOffset.swift; sourceTree = "<group>"; };
+		9963136E67B31B52AB7A4943 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
+		9B5A24B7690719724D94C21A /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
+		9C4BEAB51D6120374747083A /* FeatureGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureGate.swift; sourceTree = "<group>"; };
+		9CB07A67C45623B912A81E44 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		9D2D123EEE66FDADA7872810 /* ItemDraft.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDraft.swift; sourceTree = "<group>"; };
+		9D602BAB7FA0C3C636DEE73E /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		9E585500D5551DA6FBA8E167 /* ItemStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemStatus.swift; sourceTree = "<group>"; };
+		9F0882FAD5F042C02882BA20 /* ItemCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemCategory.swift; sourceTree = "<group>"; };
+		A077B77AE817D86C1858BD4F /* WidgetSnapshotModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotModels.swift; sourceTree = "<group>"; };
+		A0AD07D7CC9FF04834D13266 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		A172685CA574E81872DFCB0B /* ItemDraftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemDraftTests.swift; sourceTree = "<group>"; };
+		A4D3DDE9692DDF25D9215574 /* StatusBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadgeView.swift; sourceTree = "<group>"; };
+		A5509783FAC53D6034E418AE /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
+		ACD1FFEAC5D8A85DC670C316 /* TrackedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackedItem.swift; sourceTree = "<group>"; };
+		AF2B49DFE3C122E78EC00A23 /* DocumentExpiryTrackerWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentExpiryTrackerWidgetsBundle.swift; sourceTree = "<group>"; };
+		B2ADAB4C20B4DF5ACAB0AAB2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		B39308C87AA0207312FAF6C2 /* CategoryIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryIconView.swift; sourceTree = "<group>"; };
+		B5F630D8DB6D95D032C75FD1 /* DocumentExpiryTracker.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DocumentExpiryTracker.entitlements; sourceTree = "<group>"; };
+		BBB3605FF89DFA81BBCE8572 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		BEE3B0F8705F0A54BD881C0C /* ItemCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemCardView.swift; sourceTree = "<group>"; };
+		D1383E76C37275AFF8677EDF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		D9408A4428C92118A39E50DE /* ItemFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemFormView.swift; sourceTree = "<group>"; };
+		DDE5E2EA54D7792962476C86 /* WidgetSnapshotService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotService.swift; sourceTree = "<group>"; };
+		E426A3B95E948C12E4DDE5DD /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		E4935B8369004292020E29C3 /* FeatureGateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureGateTests.swift; sourceTree = "<group>"; };
+		E5EB1EFD436F3A44DFC07FC3 /* AppTabContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabContainerView.swift; sourceTree = "<group>"; };
+		E94E6E509CD44883E46AB4B9 /* ItemSortOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemSortOption.swift; sourceTree = "<group>"; };
+		F5AAFB71A51CEAFAD8974A8C /* DocumentExpiryTrackerWidgets.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DocumentExpiryTrackerWidgets.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0795290334A69EBEEFDAAE66 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				9963136E67B31B52AB7A4943 /* OnboardingFlowView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		0DE3088D5CD39E7A742FF537 /* Items */ = {
+			isa = PBXGroup;
+			children = (
+				03297B397C73AF6277A1E1A4 /* ItemsView.swift */,
+			);
+			path = Items;
+			sourceTree = "<group>";
+		};
+		2482196A76875B50FBDADEA3 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				11D02D8B3F9BCB417ACEFD00 /* AppBootstrapper.swift */,
+				E426A3B95E948C12E4DDE5DD /* AppSettings.swift */,
+				E5EB1EFD436F3A44DFC07FC3 /* AppTabContainerView.swift */,
+				B5F630D8DB6D95D032C75FD1 /* DocumentExpiryTracker.entitlements */,
+				22314AA9BDDD0F5EB488D8A6 /* DocumentExpiryTrackerApp.swift */,
+				B2ADAB4C20B4DF5ACAB0AAB2 /* Info.plist */,
+				54DDC272701E570CE4A7E712 /* RootView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		2A17C65A21D12C660540B046 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				9D602BAB7FA0C3C636DEE73E /* AppTheme.swift */,
+				B39308C87AA0207312FAF6C2 /* CategoryIconView.swift */,
+				2EB25855AA7256D1A79F6C40 /* CustomTabBar.swift */,
+				A5509783FAC53D6034E418AE /* EmptyStateView.swift */,
+				A4D3DDE9692DDF25D9215574 /* StatusBadgeView.swift */,
+			);
+			path = DesignSystem;
+			sourceTree = "<group>";
+		};
+		36758A130099CE1A8F1DAC07 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				BEE3B0F8705F0A54BD881C0C /* ItemCardView.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		3CBF4F671F364AA28B6F769F /* DocumentExpiryTracker */ = {
+			isa = PBXGroup;
+			children = (
+				2482196A76875B50FBDADEA3 /* App */,
+				2A17C65A21D12C660540B046 /* DesignSystem */,
+				4136335C9F6BBD1C394FF5B1 /* Extensions */,
+				BE5778A45E80DCDEC1BE4B3B /* Features */,
+				840BF7BD106A0200F4C9FD7F /* Models */,
+				EA7C64FE1BDBCA2172FAAA4B /* Services */,
+			);
+			path = DocumentExpiryTracker;
+			sourceTree = "<group>";
+		};
+		4136335C9F6BBD1C394FF5B1 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				9B5A24B7690719724D94C21A /* Formatters.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		4A17F870B01E389CE05E9F9C /* Insights */ = {
+			isa = PBXGroup;
+			children = (
+				910A2326F4F17BB8F83CCAEF /* InsightsView.swift */,
+			);
+			path = Insights;
+			sourceTree = "<group>";
+		};
+		4D3AC2C6F2D4F322F4A8DC2D /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				687EAC18AE0D369E19898987 /* NotificationManager.swift */,
+			);
+			path = Notifications;
+			sourceTree = "<group>";
+		};
+		7B66C9AC3FDC76DD95CD0753 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1D4EA99FAF9C543962921781 /* DocumentExpiryTracker.app */,
+				2C0A11491BB4BA9D30F5F8C6 /* DocumentExpiryTrackerUITests.xctest */,
+				4AA64FB22A88FF9919830943 /* DocumentExpiryTrackerUnitTests.xctest */,
+				2D08BFAE35FCE6FE827857FB /* DocumentExpiryTrackerWidgets.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7BA78FDA8740A15ABF56B0EA = {
+			isa = PBXGroup;
+			children = (
+				3CBF4F671F364AA28B6F769F /* DocumentExpiryTracker */,
+				FF81E10CD4F552FE493D0809 /* DocumentExpiryTrackerWidgets */,
+				F3B39BEA6015BF925EB86602 /* Tests */,
+				7B66C9AC3FDC76DD95CD0753 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7DF38C0FB67EEE799B13B3AF /* UITests */ = {
+			isa = PBXGroup;
+			children = (
+				5AE2B255386629B7072DE9E2 /* DocumentExpiryTrackerUITests.swift */,
+				746DCAD355FBBE53C47E3D77 /* Info.plist */,
+			);
+			path = UITests;
+			sourceTree = "<group>";
+		};
+		840BF7BD106A0200F4C9FD7F /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				9C4BEAB51D6120374747083A /* FeatureGate.swift */,
+				9F0882FAD5F042C02882BA20 /* ItemCategory.swift */,
+				9D2D123EEE66FDADA7872810 /* ItemDraft.swift */,
+				E94E6E509CD44883E46AB4B9 /* ItemSortOption.swift */,
+				9E585500D5551DA6FBA8E167 /* ItemStatus.swift */,
+				5B1EBB804365E6AAF1C74088 /* RecurringInterval.swift */,
+				975C53EE2BF82A2C5D29F8E5 /* ReminderOffset.swift */,
+				ACD1FFEAC5D8A85DC670C316 /* TrackedItem.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		8F1CEE1C1A372514DB0AD53E /* AddEditItem */ = {
+			isa = PBXGroup;
+			children = (
+				D9408A4428C92118A39E50DE /* ItemFormView.swift */,
+			);
+			path = AddEditItem;
+			sourceTree = "<group>";
+		};
+		A8995161D75FD36F25D095C5 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				D1383E76C37275AFF8677EDF /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		B90B957EB42BD11C1D671ABD /* UnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				E4935B8369004292020E29C3 /* FeatureGateTests.swift */,
+				BBB3605FF89DFA81BBCE8572 /* Info.plist */,
+				91A1A9EA10EBBD7B0EFDCD84 /* ItemAnalyticsTests.swift */,
+				A172685CA574E81872DFCB0B /* ItemDraftTests.swift */,
+			);
+			path = UnitTests;
+			sourceTree = "<group>";
+		};
+		BE5778A45E80DCDEC1BE4B3B /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				8F1CEE1C1A372514DB0AD53E /* AddEditItem */,
+				EF2AFDBF518FA6BAE5B38A4A /* Home */,
+				4A17F870B01E389CE05E9F9C /* Insights */,
+				BF96067F8E718F7E961C48D1 /* ItemDetail */,
+				0DE3088D5CD39E7A742FF537 /* Items */,
+				0795290334A69EBEEFDAAE66 /* Onboarding */,
+				C6DEB0232D0A3EF6FB2E3464 /* Paywall */,
+				A8995161D75FD36F25D095C5 /* Settings */,
+				36758A130099CE1A8F1DAC07 /* Shared */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		BF96067F8E718F7E961C48D1 /* ItemDetail */ = {
+			isa = PBXGroup;
+			children = (
+				399675F5E1D4CAE533C3DA07 /* ItemDetailView.swift */,
+			);
+			path = ItemDetail;
+			sourceTree = "<group>";
+		};
+		C6DEB0232D0A3EF6FB2E3464 /* Paywall */ = {
+			isa = PBXGroup;
+			children = (
+				A0AD07D7CC9FF04834D13266 /* PaywallView.swift */,
+			);
+			path = Paywall;
+			sourceTree = "<group>";
+		};
+		D5ADCBC199BE1C2B0564A2E7 /* Purchases */ = {
+			isa = PBXGroup;
+			children = (
+				963DC4B6FC68D8D43E72BF45 /* PurchaseManager.swift */,
+			);
+			path = Purchases;
+			sourceTree = "<group>";
+		};
+		EA7C64FE1BDBCA2172FAAA4B /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				970D040D83EFAD25035AB62A /* ItemAnalytics.swift */,
+				4D3AC2C6F2D4F322F4A8DC2D /* Notifications */,
+				D5ADCBC199BE1C2B0564A2E7 /* Purchases */,
+				ED8F934A0009EBC255D4ACBE /* WidgetSync */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		ED8F934A0009EBC255D4ACBE /* WidgetSync */ = {
+			isa = PBXGroup;
+			children = (
+				A077B77AE817D86C1858BD4F /* WidgetSnapshotModels.swift */,
+				DDE5E2EA54D7792962476C86 /* WidgetSnapshotService.swift */,
+			);
+			path = WidgetSync;
+			sourceTree = "<group>";
+		};
+		EF2AFDBF518FA6BAE5B38A4A /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				9CB07A67C45623B912A81E44 /* HomeView.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		F3B39BEA6015BF925EB86602 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				7DF38C0FB67EEE799B13B3AF /* UITests */,
+				B90B957EB42BD11C1D671ABD /* UnitTests */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		FF81E10CD4F552FE493D0809 /* DocumentExpiryTrackerWidgets */ = {
+			isa = PBXGroup;
+			children = (
+				F5AAFB71A51CEAFAD8974A8C /* DocumentExpiryTrackerWidgets.entitlements */,
+				AF2B49DFE3C122E78EC00A23 /* DocumentExpiryTrackerWidgetsBundle.swift */,
+				48DBDF47B0C1D90440693154 /* Info.plist */,
+				28CB7CE55713A15DFC01E0F1 /* NextDueWidget.swift */,
+			);
+			path = DocumentExpiryTrackerWidgets;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		50E45C6E8C82AB279635B559 /* DocumentExpiryTrackerWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2C6D6069D80B9770F4B033F6 /* Build configuration list for PBXNativeTarget "DocumentExpiryTrackerWidgets" */;
+			buildPhases = (
+				33DC6F358444F6E40145C8E2 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DocumentExpiryTrackerWidgets;
+			packageProductDependencies = (
+			);
+			productName = DocumentExpiryTrackerWidgets;
+			productReference = 2D08BFAE35FCE6FE827857FB /* DocumentExpiryTrackerWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		97AEABFC434BB20A3EC21F4F /* DocumentExpiryTracker */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D09098509617689AF3D84BA3 /* Build configuration list for PBXNativeTarget "DocumentExpiryTracker" */;
+			buildPhases = (
+				D404134F73B0AA9618564650 /* Sources */,
+				0509F5FD6C5236EB5BB3DA61 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EA4D96A25D1095B790A85DAD /* PBXTargetDependency */,
+			);
+			name = DocumentExpiryTracker;
+			packageProductDependencies = (
+			);
+			productName = DocumentExpiryTracker;
+			productReference = 1D4EA99FAF9C543962921781 /* DocumentExpiryTracker.app */;
+			productType = "com.apple.product-type.application";
+		};
+		DD868B69C00BAA33C1B5C64B /* DocumentExpiryTrackerUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2C17F32ADE64827971CC6757 /* Build configuration list for PBXNativeTarget "DocumentExpiryTrackerUITests" */;
+			buildPhases = (
+				06CBCB9FB2F6539B3E7837A7 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E52D88B8E68C8D3111A5F9AB /* PBXTargetDependency */,
+			);
+			name = DocumentExpiryTrackerUITests;
+			packageProductDependencies = (
+			);
+			productName = DocumentExpiryTrackerUITests;
+			productReference = 2C0A11491BB4BA9D30F5F8C6 /* DocumentExpiryTrackerUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		F8344C41026651D5CDD2C4D6 /* DocumentExpiryTrackerUnitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B4C121D1EC01C9DC86D298EA /* Build configuration list for PBXNativeTarget "DocumentExpiryTrackerUnitTests" */;
+			buildPhases = (
+				CFB8627B07A070EE4CAA3BF1 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				68268828D2C80B849598E1AB /* PBXTargetDependency */,
+			);
+			name = DocumentExpiryTrackerUnitTests;
+			packageProductDependencies = (
+			);
+			productName = DocumentExpiryTrackerUnitTests;
+			productReference = 4AA64FB22A88FF9919830943 /* DocumentExpiryTrackerUnitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		943FED138E3063F29284E82A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					50E45C6E8C82AB279635B559 = {
+						DevelopmentTeam = "";
+					};
+					97AEABFC434BB20A3EC21F4F = {
+						DevelopmentTeam = "";
+					};
+					DD868B69C00BAA33C1B5C64B = {
+						DevelopmentTeam = "";
+						TestTargetID = 97AEABFC434BB20A3EC21F4F;
+					};
+					F8344C41026651D5CDD2C4D6 = {
+						DevelopmentTeam = "";
+					};
+				};
+			};
+			buildConfigurationList = 35E94AC2C314277701CE19A4 /* Build configuration list for PBXProject "DocumentExpiryTracker" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 7BA78FDA8740A15ABF56B0EA;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 7B66C9AC3FDC76DD95CD0753 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				97AEABFC434BB20A3EC21F4F /* DocumentExpiryTracker */,
+				DD868B69C00BAA33C1B5C64B /* DocumentExpiryTrackerUITests */,
+				F8344C41026651D5CDD2C4D6 /* DocumentExpiryTrackerUnitTests */,
+				50E45C6E8C82AB279635B559 /* DocumentExpiryTrackerWidgets */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		06CBCB9FB2F6539B3E7837A7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				81BEFACBBF01A55B7EA0D139 /* DocumentExpiryTrackerUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		33DC6F358444F6E40145C8E2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				20118B289C9D7517FC48FA5A /* DocumentExpiryTrackerWidgetsBundle.swift in Sources */,
+				3C6AC07AAE5D1C4843FBB4E2 /* ItemCategory.swift in Sources */,
+				28BDBA4726AE3D33EFD132B4 /* NextDueWidget.swift in Sources */,
+				FA366EF41588C3267ED13FFD /* WidgetSnapshotModels.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CFB8627B07A070EE4CAA3BF1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A8CF0F64AFE4FE948DA3737E /* FeatureGateTests.swift in Sources */,
+				C7C01D56BCC05C6B3621516F /* ItemAnalyticsTests.swift in Sources */,
+				6A00B9E73755BE1E4002D64A /* ItemDraftTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D404134F73B0AA9618564650 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0841B5446228C610390C5F1F /* AppBootstrapper.swift in Sources */,
+				27013A6F5F47A6508E66EEB2 /* AppSettings.swift in Sources */,
+				A0C2E7A6C675D751726D4931 /* AppTabContainerView.swift in Sources */,
+				554A3954FA4B57726C4D5388 /* AppTheme.swift in Sources */,
+				6CF10E2CBF91BBA0BA17B450 /* CategoryIconView.swift in Sources */,
+				1E1B81B30D3DF4D5E7BBCBC0 /* CustomTabBar.swift in Sources */,
+				2241C7B4811763745C5A9D0D /* DocumentExpiryTrackerApp.swift in Sources */,
+				0ED2FCE105486E8790CD4E5E /* EmptyStateView.swift in Sources */,
+				14437B681FC87C57D564E8C8 /* FeatureGate.swift in Sources */,
+				27581DC98C9F99491A41D3FC /* Formatters.swift in Sources */,
+				8ED2219F3ECC7262132A23B3 /* HomeView.swift in Sources */,
+				893638138973148098AC3E61 /* InsightsView.swift in Sources */,
+				1561EE2701F3F65E46F602A4 /* ItemAnalytics.swift in Sources */,
+				2638EC9A661951409F3DD8E9 /* ItemCardView.swift in Sources */,
+				64FBD55F1C1793970B2C4EF4 /* ItemCategory.swift in Sources */,
+				E88AC13E7188BCBB49F920C5 /* ItemDetailView.swift in Sources */,
+				FB8DED7C0665D9B66ACAB9D0 /* ItemDraft.swift in Sources */,
+				78DB8BB3526397EC11922237 /* ItemFormView.swift in Sources */,
+				DAD94B742F16F2B2BA0843DA /* ItemSortOption.swift in Sources */,
+				F5A8C57187883DE5849B1D3B /* ItemStatus.swift in Sources */,
+				C1DAAE7C2291B1A8F51DBB91 /* ItemsView.swift in Sources */,
+				FC6DFD38E2D9AA3B56344DB2 /* NotificationManager.swift in Sources */,
+				628B3D21AE4C58C3D229B8A9 /* OnboardingFlowView.swift in Sources */,
+				40476B79296149BE171F2E5B /* PaywallView.swift in Sources */,
+				57802DBA9AE97469A901F073 /* PurchaseManager.swift in Sources */,
+				E55E6BACB818BEE3889BD82D /* RecurringInterval.swift in Sources */,
+				D054B32AFC18B8A341F189C5 /* ReminderOffset.swift in Sources */,
+				A126C809A9709D6D9DF6B8FC /* RootView.swift in Sources */,
+				C07345DDC1FDC6175A007188 /* SettingsView.swift in Sources */,
+				2A3F96727A4753154CFCB830 /* StatusBadgeView.swift in Sources */,
+				8CA6A7555DAD5CE0096A3934 /* TrackedItem.swift in Sources */,
+				7AF033FB1653E3C9A373B4C8 /* WidgetSnapshotModels.swift in Sources */,
+				365379CBA6EC5F110DBEEFC3 /* WidgetSnapshotService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		68268828D2C80B849598E1AB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 97AEABFC434BB20A3EC21F4F /* DocumentExpiryTracker */;
+			targetProxy = 286719A110254DAFAAC2C0AA /* PBXContainerItemProxy */;
+		};
+		E52D88B8E68C8D3111A5F9AB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 97AEABFC434BB20A3EC21F4F /* DocumentExpiryTracker */;
+			targetProxy = CBBE7BCC101681EA6761B08D /* PBXContainerItemProxy */;
+		};
+		EA4D96A25D1095B790A85DAD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 50E45C6E8C82AB279635B559 /* DocumentExpiryTrackerWidgets */;
+			targetProxy = D4EBF667AE109D3C54949194 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		26F9E108A2D6DBB089438350 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = DocumentExpiryTrackerWidgets/DocumentExpiryTrackerWidgets.entitlements;
+				INFOPLIST_FILE = DocumentExpiryTrackerWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.expiryvault.app.widget;
+				PRODUCT_NAME = "Document Expiry Tracker Widget";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		3DBFD00ADF464C469A3F23FE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		5BA8BF500D0D3CD3B791412E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = DocumentExpiryTrackerWidgets/DocumentExpiryTrackerWidgets.entitlements;
+				INFOPLIST_FILE = DocumentExpiryTrackerWidgets/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.expiryvault.app.widget;
+				PRODUCT_NAME = "Document Expiry Tracker Widget";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		6A1276443B4F4B2388F0B3D2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = DocumentExpiryTracker/App/DocumentExpiryTracker.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = DocumentExpiryTracker/App/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.expiryvault.app;
+				PRODUCT_NAME = "Document Expiry Tracker";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		98D57CA2C70C7D2764C531A3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Tests/UITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.expiryvault.app.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = DocumentExpiryTracker;
+			};
+			name = Debug;
+		};
+		9A5E19B2E8B0BE3422D1ADD4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = DocumentExpiryTracker/App/DocumentExpiryTracker.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 1;
+				INFOPLIST_FILE = DocumentExpiryTracker/App/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.expiryvault.app;
+				PRODUCT_NAME = "Document Expiry Tracker";
+				SDKROOT = iphoneos;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		A0CB9AC47175905F98554BB2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Tests/UITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.expiryvault.app.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = DocumentExpiryTracker;
+			};
+			name = Release;
+		};
+		A31F2F677CD0CDC8AFB2A38F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Tests/UnitTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.expiryvault.app.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Document Expiry Tracker.app/Document Expiry Tracker";
+			};
+			name = Release;
+		};
+		B4856B759A13203E5B466C17 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Tests/UnitTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.expiryvault.app.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Document Expiry Tracker.app/Document Expiry Tracker";
+			};
+			name = Debug;
+		};
+		BDEBC2ABC7331EAAE7D5EC11 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2C17F32ADE64827971CC6757 /* Build configuration list for PBXNativeTarget "DocumentExpiryTrackerUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				98D57CA2C70C7D2764C531A3 /* Debug */,
+				A0CB9AC47175905F98554BB2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		2C6D6069D80B9770F4B033F6 /* Build configuration list for PBXNativeTarget "DocumentExpiryTrackerWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5BA8BF500D0D3CD3B791412E /* Debug */,
+				26F9E108A2D6DBB089438350 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		35E94AC2C314277701CE19A4 /* Build configuration list for PBXProject "DocumentExpiryTracker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BDEBC2ABC7331EAAE7D5EC11 /* Debug */,
+				3DBFD00ADF464C469A3F23FE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		B4C121D1EC01C9DC86D298EA /* Build configuration list for PBXNativeTarget "DocumentExpiryTrackerUnitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B4856B759A13203E5B466C17 /* Debug */,
+				A31F2F677CD0CDC8AFB2A38F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D09098509617689AF3D84BA3 /* Build configuration list for PBXNativeTarget "DocumentExpiryTracker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6A1276443B4F4B2388F0B3D2 /* Debug */,
+				9A5E19B2E8B0BE3422D1ADD4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 943FED138E3063F29284E82A /* Project object */;
+}
