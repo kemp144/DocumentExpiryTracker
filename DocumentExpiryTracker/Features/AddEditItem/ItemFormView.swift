@@ -109,16 +109,14 @@ struct ItemFormView: View {
                             .clipShape(Circle())
                     }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Save") { save() }
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(draft.isValid ? AppTheme.primary : AppTheme.textMuted)
-                        .disabled(!draft.isValid || saveTaskInFlight)
-                        .accessibilityIdentifier("itemForm_save")
-                }
             }
         }
         .preferredColorScheme(.dark)
+        .onAppear {
+            if case .add = mode, draft.amountText.isEmpty {
+                draft.currencyCode = settings.defaultCurrency
+            }
+        }
         .sheet(item: $paywallContext) { context in
             PaywallView(context: context)
         }

@@ -26,6 +26,7 @@
 		3F76B575D362FBF5EEC97207 /* AppLockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D581E668468C1C5B9339BAB /* AppLockManager.swift */; };
 		40476B79296149BE171F2E5B /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0AD07D7CC9FF04834D13266 /* PaywallView.swift */; };
 		457A75F2B23E0EEB0EBCA223 /* DocumentExpiryTrackerWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 2D08BFAE35FCE6FE827857FB /* DocumentExpiryTrackerWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		4CAE519B259D3802169C7481 /* RecurringItemsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62400B1A5675D873998F074F /* RecurringItemsListView.swift */; };
 		554A3954FA4B57726C4D5388 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D602BAB7FA0C3C636DEE73E /* AppTheme.swift */; };
 		57802DBA9AE97469A901F073 /* PurchaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 963DC4B6FC68D8D43E72BF45 /* PurchaseManager.swift */; };
 		5F382C9D4E7D48763B308EA3 /* StoredAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F38D3E61A3E7D4C205076BEE /* StoredAttachment.swift */; };
@@ -112,6 +113,7 @@
 		5AE2B255386629B7072DE9E2 /* DocumentExpiryTrackerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentExpiryTrackerUITests.swift; sourceTree = "<group>"; };
 		5B1EBB804365E6AAF1C74088 /* RecurringInterval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurringInterval.swift; sourceTree = "<group>"; };
 		6132B0B243FF163B7E7616AB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		62400B1A5675D873998F074F /* RecurringItemsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurringItemsListView.swift; sourceTree = "<group>"; };
 		687EAC18AE0D369E19898987 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		746DCAD355FBBE53C47E3D77 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7D581E668468C1C5B9339BAB /* AppLockManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockManager.swift; sourceTree = "<group>"; };
@@ -415,6 +417,7 @@
 			isa = PBXGroup;
 			children = (
 				9CB07A67C45623B912A81E44 /* HomeView.swift */,
+				62400B1A5675D873998F074F /* RecurringItemsListView.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -636,6 +639,7 @@
 				57802DBA9AE97469A901F073 /* PurchaseManager.swift in Sources */,
 				36E092CD734495339691C1E8 /* QuickTemplate.swift in Sources */,
 				E55E6BACB818BEE3889BD82D /* RecurringInterval.swift in Sources */,
+				4CAE519B259D3802169C7481 /* RecurringItemsListView.swift in Sources */,
 				D054B32AFC18B8A341F189C5 /* ReminderOffset.swift in Sources */,
 				A126C809A9709D6D9DF6B8FC /* RootView.swift in Sources */,
 				C07345DDC1FDC6175A007188 /* SettingsView.swift in Sources */,

@@ -24,7 +24,7 @@ struct WidgetSnapshotPayload: Codable {
     let isProUnlocked: Bool
     let items: [WidgetItemSnapshot]
     let dueSoonCount: Int
-    let monthlyRecurringTotal: Double
+    let monthlyRecurringTotal: [String: Double]
 }
 
 enum WidgetCountdownFormatter {

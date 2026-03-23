@@ -25,4 +25,16 @@ enum AppFormatters {
         formatter.minimumFractionDigits = 0
         return formatter.string(from: NSNumber(value: amount)) ?? currencyString(amount: amount, currencyCode: currencyCode)
     }
+
+    static func formatMultiCurrency(totals: [String: Double], compact: Bool = false) -> String {
+        if totals.isEmpty {
+            let defaultCurrency = Locale.current.currency?.identifier ?? "USD"
+            return compact ? compactCurrencyString(amount: 0, currencyCode: defaultCurrency) : currencyString(amount: 0, currencyCode: defaultCurrency)
+        }
+        let sortedKeys = totals.keys.sorted()
+        let parts = sortedKeys.map { code in
+            compact ? compactCurrencyString(amount: totals[code]!, currencyCode: code) : currencyString(amount: totals[code]!, currencyCode: code)
+        }
+        return parts.joined(separator: " + ")
+    }
 }

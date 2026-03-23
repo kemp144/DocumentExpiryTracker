@@ -114,33 +114,59 @@ enum ItemAnalytics {
         return activeItems(from: items).sorted { effectiveDueDate(for: $0, now: now) < effectiveDueDate(for: $1, now: now) }.first
     }
 
-    static func monthlyRecurringTotal(from items: [TrackedItem]) -> Double {
-        activeItems(from: items)
-            .filter { $0.recurringInterval == .monthly }
-            .compactMap(\.amount)
-            .reduce(0, +)
+    static func monthlyRecurringItems(from items: [TrackedItem]) -> [TrackedItem] {
+        activeItems(from: items).filter { $0.recurringInterval == .monthly && $0.amount != nil }
     }
 
-    static func yearlyRecurringTotal(from items: [TrackedItem]) -> Double {
-        activeItems(from: items)
-            .filter { $0.recurringInterval == .yearly }
-            .compactMap(\.amount)
-            .reduce(0, +)
+    static func yearlyRecurringItems(from items: [TrackedItem]) -> [TrackedItem] {
+        activeItems(from: items).filter { $0.recurringInterval == .yearly && $0.amount != nil }
     }
 
-    static func annualRecurringEstimate(from items: [TrackedItem]) -> Double {
-        monthlyRecurringTotal(from: items) * 12 + yearlyRecurringTotal(from: items)
-    }
-
-    static func recurringDueInNextThirtyDaysTotal(from items: [TrackedItem], now: Date = .now) -> Double {
+    static func recurringDueInNextThirtyDaysItems(from items: [TrackedItem], now: Date = .now) -> [TrackedItem] {
         activeItems(from: items)
-            .filter { $0.isRecurring }
+            .filter { $0.isRecurring && $0.amount != nil }
             .filter {
                 let days = daysUntilDue(for: $0, now: now)
                 return days >= 0 && days <= 30
             }
-            .compactMap(\.amount)
-            .reduce(0, +)
+    }
+
+    static func monthlyRecurringTotal(from items: [TrackedItem]) -> [String: Double] {
+        let active = monthlyRecurringItems(from: items)
+        var totals: [String: Double] = [:]
+        for item in active {
+            totals[item.currencyCode, default: 0] += item.amount!
+        }
+        return totals
+    }
+
+    static func yearlyRecurringTotal(from items: [TrackedItem]) -> [String: Double] {
+        let active = yearlyRecurringItems(from: items)
+        var totals: [String: Double] = [:]
+        for item in active {
+            totals[item.currencyCode, default: 0] += item.amount!
+        }
+        return totals
+    }
+
+    static func annualRecurringEstimate(from items: [TrackedItem]) -> [String: Double] {
+        var totals: [String: Double] = [:]
+        for (currency, amount) in monthlyRecurringTotal(from: items) {
+            totals[currency, default: 0] += amount * 12
+        }
+        for (currency, amount) in yearlyRecurringTotal(from: items) {
+            totals[currency, default: 0] += amount
+        }
+        return totals
+    }
+
+    static func recurringDueInNextThirtyDaysTotal(from items: [TrackedItem], now: Date = .now) -> [String: Double] {
+        let active = recurringDueInNextThirtyDaysItems(from: items, now: now)
+        var totals: [String: Double] = [:]
+        for item in active {
+            totals[item.currencyCode, default: 0] += item.amount!
+        }
+        return totals
     }
 
     static func dueInNext(days: Int, items: [TrackedItem], now: Date = .now) -> Int {

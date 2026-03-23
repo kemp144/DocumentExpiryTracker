@@ -26,7 +26,7 @@ struct HomeView: View {
 
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 22) {
                 header
 
                 if activeItems.isEmpty {
@@ -119,73 +119,55 @@ struct HomeView: View {
     }
 
     private var actionCard: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 5) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(heroEyebrow)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(Color.white.opacity(0.72))
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Color.white.opacity(0.8))
+                        .textCase(.uppercase)
                     Text(heroTitle)
-                        .font(.system(size: 28, weight: .bold))
+                        .font(.system(size: 26, weight: .bold))
                         .foregroundStyle(Color.white)
                         .lineLimit(2)
                     Text(heroSubtitle)
-                        .font(.system(size: 15))
+                        .font(.system(size: 14))
                         .foregroundStyle(Color.white.opacity(0.9))
-                        .lineLimit(3)
+                        .lineSpacing(2)
+                        .lineLimit(2)
+                        .padding(.top, 2)
                 }
                 Spacer(minLength: 12)
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .fill(Color.white.opacity(0.18))
-                    .frame(width: 52, height: 52)
+                    .frame(width: 48, height: 48)
                     .overlay {
                         Image(systemName: heroSymbol)
-                            .font(.system(size: 24, weight: .semibold))
+                            .font(.system(size: 22, weight: .semibold))
                             .foregroundStyle(Color.white)
                     }
             }
 
-            if let criticalItem {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Next: \(criticalItem.title)")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(Color.white)
-                    HStack(spacing: 10) {
-                        Text(ItemAnalytics.urgencyTitle(for: criticalItem))
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(Color.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 7)
-                            .background(Color.white.opacity(0.16))
-                            .clipShape(Capsule())
-
-                        if let amount = criticalItem.amount {
-                            Text(AppFormatters.currencyString(amount: amount, currencyCode: criticalItem.currencyCode))
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundStyle(Color.white.opacity(0.88))
-                        }
-                    }
-                }
-            }
-
-            HStack(spacing: 12) {
+            HStack(spacing: 10) {
                 heroStat(title: "Due soon", value: "\(dueSoonItems.count)")
                 heroStat(title: "Active", value: "\(activeItems.count)")
-                heroStat(title: "Expired", value: "\(expiredItems.count)")
+                
                 if !recurringItems.isEmpty {
                     heroStat(
                         title: "Monthly",
-                        value: AppFormatters.compactCurrencyString(
-                            amount: ItemAnalytics.monthlyRecurringTotal(from: items),
-                            currencyCode: Locale.current.currency?.identifier ?? "USD"
+                        value: AppFormatters.formatMultiCurrency(
+                            totals: ItemAnalytics.monthlyRecurringTotal(from: items),
+                            compact: true
                         )
                     )
+                } else if !expiredItems.isEmpty {
+                    heroStat(title: "Expired", value: "\(expiredItems.count)")
                 }
             }
         }
-        .padding(22)
-        .background(AppTheme.cardGradient)
-        .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+        .padding(20)
+        .background(AppTheme.brandGradient)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
     private var softUpgradeCard: some View {
@@ -217,7 +199,7 @@ struct HomeView: View {
                 settings.dismissSoftUpgradePrompt(permanently: true)
                 onUpgradeTapped(.softUpgrade)
             }
-            .buttonStyle(AppFilledButtonStyle())
+            .buttonStyle(AppSecondaryButtonStyle())
             .accessibilityIdentifier("home_soft_upgrade")
         }
         .appCardStyle(padding: 20, radius: 24)
@@ -225,13 +207,13 @@ struct HomeView: View {
 
     private var dueSoonSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionHeader(title: "Due Soon", subtitle: dueSoonItems.isEmpty ? "No urgent renewals right now" : "Focus on what needs attention next")
+            sectionHeader(title: "Due Soon", subtitle: "Focus on what needs attention next")
 
             if dueSoonItems.isEmpty {
                 compactEmptyCard(
                     symbol: "checkmark.circle.fill",
                     title: "Nothing urgent",
-                    message: "You are up to date for now. Add more items or enjoy the quiet."
+                    message: "You are up to date for now."
                 )
             } else {
                 ForEach(dueSoonItems.prefix(4), id: \.id) { item in
@@ -248,32 +230,51 @@ struct HomeView: View {
 
     private var recurringSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            sectionHeader(title: "Recurring Costs", subtitle: recurringItems.isEmpty ? "No recurring subscriptions or renewals yet" : "See the costs you are carrying month to month")
+            sectionHeader(title: "Recurring Costs", subtitle: "See the costs you are carrying month to month")
 
             if recurringItems.isEmpty {
                 compactEmptyCard(
                     symbol: "repeat",
                     title: "No recurring items",
-                    message: "Track Netflix, phone contracts, and insurance renewals to see your ongoing commitments."
+                    message: "Track subscriptions to see ongoing commitments."
                 )
             } else {
                 VStack(alignment: .leading, spacing: 14) {
                     HStack(spacing: 12) {
-                        recurringStat(title: "Monthly", value: ItemAnalytics.monthlyRecurringTotal(from: items))
-                        recurringStat(title: "Yearly", value: ItemAnalytics.yearlyRecurringTotal(from: items))
+                        NavigationLink {
+                            RecurringItemsListView(title: "Monthly Costs", items: ItemAnalytics.monthlyRecurringItems(from: items))
+                        } label: {
+                            recurringStat(title: "Monthly", totals: ItemAnalytics.monthlyRecurringTotal(from: items))
+                        }
+                        .buttonStyle(.plain)
+                        
+                        NavigationLink {
+                            RecurringItemsListView(title: "Yearly Costs", items: ItemAnalytics.yearlyRecurringItems(from: items))
+                        } label: {
+                            recurringStat(title: "Yearly", totals: ItemAnalytics.yearlyRecurringTotal(from: items))
+                        }
+                        .buttonStyle(.plain)
                     }
 
                     let nextThirtyTotal = ItemAnalytics.recurringDueInNextThirtyDaysTotal(from: items)
-                    if nextThirtyTotal > 0 {
-                        HStack {
-                            Text("Next 30 days")
-                                .font(.system(size: 13))
-                                .foregroundStyle(AppTheme.textSecondary)
-                            Spacer()
-                            Text(AppFormatters.currencyString(amount: nextThirtyTotal, currencyCode: Locale.current.currency?.identifier ?? "USD"))
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(AppTheme.textPrimary)
+                    if !nextThirtyTotal.isEmpty {
+                        NavigationLink {
+                            RecurringItemsListView(title: "Next 30 Days", items: ItemAnalytics.recurringDueInNextThirtyDaysItems(from: items))
+                        } label: {
+                            HStack {
+                                Text("Next 30 days")
+                                    .font(.system(size: 13))
+                                    .foregroundStyle(AppTheme.textSecondary)
+                                Spacer()
+                                Text(AppFormatters.formatMultiCurrency(totals: nextThirtyTotal, compact: false))
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundStyle(AppTheme.textPrimary)
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 12, weight: .semibold))
+                                    .foregroundStyle(AppTheme.textMuted)
+                            }
                         }
+                        .buttonStyle(.plain)
                     }
                 }
                 .appCardStyle()
@@ -282,23 +283,18 @@ struct HomeView: View {
     }
 
     private var expiredSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            sectionHeader(title: "Expired", subtitle: expiredItems.isEmpty ? "Everything active is still current" : "Older items that need to be renewed or archived")
-
-            if expiredItems.isEmpty {
-                compactEmptyCard(
-                    symbol: "sparkles",
-                    title: "All clear",
-                    message: "Nothing in your tracker is currently expired."
-                )
-            } else {
-                ForEach(expiredItems.prefix(3), id: \.id) { item in
-                    NavigationLink {
-                        ItemDetailView(item: item)
-                    } label: {
-                        ItemCardView(item: item)
+        Group {
+            if !expiredItems.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    sectionHeader(title: "Expired", subtitle: "Older items that need to be renewed or archived")
+                    ForEach(expiredItems.prefix(3), id: \.id) { item in
+                        NavigationLink {
+                            ItemDetailView(item: item)
+                        } label: {
+                            ItemCardView(item: item)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
             }
         }
@@ -307,25 +303,31 @@ struct HomeView: View {
     private var heroEyebrow: String {
         if !expiredItems.isEmpty { return "Needs attention" }
         if !dueSoonItems.isEmpty { return "Action dashboard" }
-        return "All tracked items are up to date"
+        return "All clear"
     }
 
     private var heroTitle: String {
         if !expiredItems.isEmpty {
-            return "\(expiredItems.count) expired"
+            return "\(expiredItems.count) Expired"
         }
         if let criticalItem, !dueSoonItems.isEmpty {
             return ItemAnalytics.urgencyTitle(for: criticalItem)
         }
-        return "Everything looks calm"
+        return "Everything is calm"
     }
 
     private var heroSubtitle: String {
-        if let criticalItem {
+        if let criticalItem, !dueSoonItems.isEmpty || !expiredItems.isEmpty {
             let dueDate = ItemAnalytics.effectiveDueDate(for: criticalItem)
-            return "\(criticalItem.title) • \(ItemAnalytics.actionLabel(for: criticalItem)) \(AppFormatters.shortDate.string(from: dueDate))"
+            let dateStr = AppFormatters.shortDate.string(from: dueDate)
+            var amountStr = ""
+            if let amount = criticalItem.amount {
+                let currStr = AppFormatters.currencyString(amount: amount, currencyCode: criticalItem.currencyCode)
+                amountStr = " · \(currStr)\(criticalItem.isRecurring ? "/\(criticalItem.recurringInterval.shortTitle)" : "")"
+            }
+            return "\(criticalItem.title)\n\(ItemAnalytics.actionLabel(for: criticalItem)) \(dateStr)\(amountStr)"
         }
-        return "Keep tracking renewals, subscriptions, contracts, and warranties in one place."
+        return "You are up to date on all renewals and expirations."
     }
 
     private var heroSymbol: String {
@@ -338,7 +340,7 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
                 .font(.system(size: 12))
-                .foregroundStyle(Color.white.opacity(0.68))
+                .foregroundStyle(Color.white.opacity(0.75))
             Text(value)
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(Color.white)
@@ -347,17 +349,17 @@ struct HomeView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(12)
-        .background(Color.white.opacity(0.14))
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .background(Color.white.opacity(0.15))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
-    private func recurringStat(title: String, value: Double) -> some View {
+    private func recurringStat(title: String, totals: [String: Double]) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
                 .font(.system(size: 13))
                 .foregroundStyle(AppTheme.textSecondary)
-            Text(AppFormatters.currencyString(amount: value, currencyCode: Locale.current.currency?.identifier ?? "USD"))
-                .font(.system(size: 20, weight: .semibold))
+            Text(AppFormatters.formatMultiCurrency(totals: totals, compact: false))
+                .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(AppTheme.textPrimary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
@@ -380,11 +382,11 @@ struct HomeView: View {
     }
 
     private func compactEmptyCard(symbol: String, title: String, message: String) -> some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .center, spacing: 14) {
             Image(systemName: symbol)
-                .font(.system(size: 18, weight: .semibold))
+                .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(AppTheme.textSecondary)
-                .frame(width: 40, height: 40)
+                .frame(width: 44, height: 44)
                 .background(AppTheme.fillSoft)
                 .clipShape(Circle())
 
@@ -397,9 +399,8 @@ struct HomeView: View {
                     .foregroundStyle(AppTheme.textSecondary)
                     .lineSpacing(2)
             }
-
             Spacer()
         }
-        .appCardStyle(padding: 16, radius: 22)
+        .appCardStyle(padding: 16, radius: 20)
     }
 }

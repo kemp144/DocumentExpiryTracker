@@ -24,6 +24,7 @@ final class AppSettings: ObservableObject {
         static let hasSeenSoftUpgradePrompt = "hasSeenSoftUpgradePrompt"
         static let shouldShowSoftUpgradePrompt = "shouldShowSoftUpgradePrompt"
         static let isAppLockEnabled = "isAppLockEnabled"
+        static let defaultCurrency = "defaultCurrency"
     }
 
     private let defaults: UserDefaults
@@ -46,6 +47,10 @@ final class AppSettings: ObservableObject {
     @Published var isAppLockEnabled: Bool {
         didSet { defaults.set(isAppLockEnabled, forKey: Keys.isAppLockEnabled) }
     }
+    
+    @Published var defaultCurrency: String {
+        didSet { defaults.set(defaultCurrency, forKey: Keys.defaultCurrency) }
+    }
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -60,6 +65,7 @@ final class AppSettings: ObservableObject {
         self.hasSeenSoftUpgradePrompt = defaults.bool(forKey: Keys.hasSeenSoftUpgradePrompt)
         self.shouldShowSoftUpgradePrompt = defaults.bool(forKey: Keys.shouldShowSoftUpgradePrompt)
         self.isAppLockEnabled = defaults.bool(forKey: Keys.isAppLockEnabled)
+        self.defaultCurrency = defaults.string(forKey: Keys.defaultCurrency) ?? Locale.current.currency?.identifier ?? "USD"
     }
 
     var appearanceMode: AppearanceMode {

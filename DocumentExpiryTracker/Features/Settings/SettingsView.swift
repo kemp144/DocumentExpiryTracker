@@ -40,12 +40,15 @@ struct SettingsView: View {
                 premiumSection
                 privacySection
                 supportSection
+                #if DEBUG
                 developerSection
+                #endif
 
                 if let statusMessage {
                     Text(statusMessage)
                         .font(.system(size: 13))
                         .foregroundStyle(AppTheme.textSecondary)
+                        .padding(.top, 4)
                 }
 
                 VStack(spacing: 4) {
@@ -57,7 +60,7 @@ struct SettingsView: View {
                         .foregroundStyle(AppTheme.textMuted)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.top, 12)
+                .padding(.top, 16)
             }
             .padding(.horizontal, 16)
             .padding(.top, 16)
@@ -74,7 +77,7 @@ struct SettingsView: View {
                             .foregroundStyle(AppTheme.textPrimary)
                             .lineSpacing(3)
 
-                        Text("Pro unlocks extra protection like widgets, attachments, app lock, advanced insights, and room to track everything important in one place.")
+                        Text("Pro unlocks extra protection like widgets, attachments, Face ID lock, advanced insights, and room to track everything important in one place.")
                             .font(.system(size: 15))
                             .foregroundStyle(AppTheme.textSecondary)
                             .lineSpacing(3)
@@ -104,7 +107,7 @@ struct SettingsView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This will permanently delete all \(allItems.count) items. This action cannot be undone.")
+            Text("This will permanently delete all \(allItems.count) tracked items. This action cannot be undone.")
         }
     }
 
@@ -128,14 +131,27 @@ struct SettingsView: View {
                         .foregroundStyle(Color.white.opacity(0.8))
                 }
             }
-            Text("Your items are stored on your device, reminders are local, and no account is required. Document Expiry Tracker is built to be useful without being intrusive.")
-                .font(.system(size: 14))
-                .foregroundStyle(Color.white.opacity(0.88))
-                .lineSpacing(2)
+            VStack(alignment: .leading, spacing: 6) {
+                bulletPoint("Stored securely on your device")
+                bulletPoint("Local reminders only")
+                bulletPoint("No account or sign-in required")
+            }
+            .padding(.top, 4)
         }
         .padding(22)
         .background(AppTheme.cardGradient)
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+    }
+
+    private func bulletPoint(_ text: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 14))
+                .foregroundStyle(Color.white.opacity(0.9))
+            Text(text)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(Color.white.opacity(0.88))
+        }
     }
 
     private var notificationsSection: some View {
@@ -189,6 +205,29 @@ struct SettingsView: View {
                 )) {
                     ForEach(AppearanceMode.allCases) { mode in
                         Text(mode.title).tag(mode)
+                    }
+                }
+                .pickerStyle(.menu)
+                .tint(AppTheme.primary)
+            }
+            .padding(16)
+
+            Divider().overlay(AppTheme.border)
+
+            HStack(spacing: 12) {
+                leadingIcon(symbol: "dollarsign.circle.fill")
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Default Currency")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(AppTheme.textPrimary)
+                    Text("Used for new items and primary totals.")
+                        .font(.system(size: 13))
+                        .foregroundStyle(AppTheme.textSecondary)
+                }
+                Spacer()
+                Picker("Currency", selection: $settings.defaultCurrency) {
+                    ForEach(FeatureGate.availableCurrencies(isPro: true), id: \.self) { code in
+                        Text(code).tag(code)
                     }
                 }
                 .pickerStyle(.menu)
@@ -360,6 +399,7 @@ struct SettingsView: View {
         }
     }
 
+    #if DEBUG
     private var developerSection: some View {
         settingsCard(title: "Developer") {
             Button {
@@ -371,7 +411,7 @@ struct SettingsView: View {
                         Text("Pro Override")
                             .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(AppTheme.textPrimary)
-                        Text(purchaseManager.isProUnlocked ? "Pro je aktivan. Tapni da deaktiviraj." : "Pro je neaktivan. Tapni da aktiviraš.")
+                        Text(purchaseManager.isProUnlocked ? "Pro is active. Tap to deactivate." : "Pro is inactive. Tap to activate.")
                             .font(.system(size: 13))
                             .foregroundStyle(AppTheme.textSecondary)
                     }
@@ -398,7 +438,7 @@ struct SettingsView: View {
                 settingsRow(
                     symbol: "wand.and.stars",
                     title: "Generate Sample Data",
-                    subtitle: "Dodaje 14 realnih stavki: dokumenta, pretplate, garancije, osiguranja i ugovor."
+                    subtitle: "Adds 14 realistic sample items including subscriptions and warranties."
                 )
             }
             .buttonStyle(.plain)
@@ -419,7 +459,7 @@ struct SettingsView: View {
                         Text("Reset All Data")
                             .font(.system(size: 15, weight: .medium))
                             .foregroundStyle(AppTheme.danger)
-                        Text("Briše sve stavke. Ne može se povratiti.")
+                        Text("Deletes all items. Cannot be undone.")
                             .font(.system(size: 13))
                             .foregroundStyle(AppTheme.textSecondary)
                     }
@@ -441,16 +481,16 @@ struct SettingsView: View {
             TrackedItem(title: "Passport", category: .document, provider: "Ministry of Interior",
                         dueDate: date(730), notesText: "Biometric passport", ownerName: "Robert Engel",
                         reminders: [.thirtyDays, .sevenDays]),
-            TrackedItem(title: "Driver's License", category: .document, provider: "MUP",
+            TrackedItem(title: "Driver's License", category: .document, provider: "DMV",
                         dueDate: date(365), notesText: "Category B", ownerName: "Robert Engel",
                         reminders: [.thirtyDays, .sevenDays]),
-            TrackedItem(title: "Health Insurance Card", category: .document, provider: "RFZO",
-                        dueDate: date(180), recurringInterval: .yearly, notesText: "Obnoviti kod doktora", ownerName: "Robert Engel",
+            TrackedItem(title: "Health Insurance Card", category: .document, provider: "National Health",
+                        dueDate: date(180), recurringInterval: .yearly, notesText: "Renew at the clinic", ownerName: "Robert Engel",
                         reminders: [.thirtyDays, .sevenDays, .oneDay]),
             TrackedItem(title: "Work Permit", category: .document, provider: "Ministry of Labor",
                         dueDate: date(90), recurringInterval: .yearly, notesText: "Renew 30 days before expiry",
                         reminders: [.thirtyDays, .sevenDays, .threeDays]),
-            TrackedItem(title: "Vehicle Registration", category: .document, provider: "MUP",
+            TrackedItem(title: "Vehicle Registration", category: .document, provider: "DMV",
                         dueDate: date(-15), recurringInterval: .yearly, notesText: "EXPIRED – renew ASAP",
                         reminders: [.thirtyDays, .sevenDays]),
             TrackedItem(title: "Netflix", category: .subscription, provider: "Netflix Inc.",
@@ -471,21 +511,22 @@ struct SettingsView: View {
             TrackedItem(title: "Sony TV Warranty", category: .warranty, provider: "Sony",
                         dueDate: date(500), notesText: "Model: XR-65A80L",
                         reminders: [.thirtyDays]),
-            TrackedItem(title: "Car Insurance", category: .insurance, provider: "Generali",
-                        dueDate: date(240), recurringInterval: .yearly, amount: 320.00, currencyCode: "EUR",
-                        notesText: "Kasko + obavezno",
+            TrackedItem(title: "Car Insurance", category: .insurance, provider: "Geico",
+                        dueDate: date(240), recurringInterval: .yearly, amount: 320.00, currencyCode: "USD",
+                        notesText: "Comprehensive + Collision",
                         reminders: [.thirtyDays, .sevenDays]),
-            TrackedItem(title: "Home Insurance", category: .insurance, provider: "DDOR",
-                        dueDate: date(120), recurringInterval: .yearly, amount: 180.00, currencyCode: "EUR",
+            TrackedItem(title: "Home Insurance", category: .insurance, provider: "State Farm",
+                        dueDate: date(120), recurringInterval: .yearly, amount: 180.00, currencyCode: "USD",
                         reminders: [.thirtyDays, .sevenDays]),
-            TrackedItem(title: "Apartment Lease", category: .contract, provider: "Landlord – Petar Petrović",
-                        dueDate: date(305), recurringInterval: .yearly, amount: 650.00, currencyCode: "EUR",
-                        notesText: "Automatski se produžava ako se ne otkaže 30 dana pre isteka.",
+            TrackedItem(title: "Apartment Lease", category: .contract, provider: "Landlord",
+                        dueDate: date(305), recurringInterval: .yearly, amount: 1650.00, currencyCode: "USD",
+                        notesText: "Auto-renews unless canceled 30 days prior.",
                         reminders: [.thirtyDays, .sevenDays]),
         ]
         for item in samples { modelContext.insert(item) }
-        statusMessage = "Generisano \(samples.count) stavki."
+        statusMessage = "Generated \(samples.count) items."
     }
+    #endif
 
     private var appLockSubtitle: String {
         if !purchaseManager.isProUnlocked {

@@ -16,7 +16,7 @@ struct InsightsView: View {
                     Text("Insights")
                         .font(.system(size: 28, weight: .bold))
                         .foregroundStyle(AppTheme.textPrimary)
-                    Text("See renewal load, recurring costs, and where your attention goes next")
+                    Text("Understand your renewals and where your attention goes next")
                         .font(.system(size: 15))
                         .foregroundStyle(AppTheme.textSecondary)
                 }
@@ -28,11 +28,21 @@ struct InsightsView: View {
                             title: "Insights appear as you track more",
                             message: "Add a few renewals or subscriptions and this tab will start surfacing meaningful patterns."
                         )
+                        .padding(.top, 36)
                     } else {
                         proContent
                     }
                 } else {
-                    lockedContent
+                    if activeItems.isEmpty {
+                        EmptyStateView(
+                            systemImage: "chart.bar.xaxis",
+                            title: "Insights appear as you track more",
+                            message: "Add a few items and check back to see your free tracking summary."
+                        )
+                        .padding(.top, 36)
+                    } else {
+                        lockedContent
+                    }
                 }
             }
             .padding(.horizontal, 16)
@@ -47,24 +57,38 @@ struct InsightsView: View {
         VStack(spacing: 16) {
             quickStatsCard(includePremiumMetrics: false)
 
-            VStack(alignment: .leading, spacing: 14) {
-                Text("With Pro, Insights helps you understand recurring costs, renewal pressure, and which categories need the most attention.")
-                    .font(.system(size: 15))
-                    .foregroundStyle(AppTheme.textSecondary)
+            analyticsCard(title: "Your Tracker") {
+                metricRow(label: "Total tracked items", value: "\(activeItems.count)")
+                metricRow(label: "Due in next 30 days", value: "\(ItemAnalytics.dueInNext(days: 30, items: items))")
+                metricRow(label: "Due soon", value: "\(ItemAnalytics.dueSoonItems(from: items).count)")
+                metricRow(label: "Expired", value: "\(ItemAnalytics.expiredItems(from: items).count)")
+                metricRow(label: "Documents expiring soon", value: "\(ItemAnalytics.expiringDocumentsCount(from: items))")
+            }
 
-                Button("Unlock Advanced Insights") {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("Understand your recurring load")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(AppTheme.textPrimary)
+
+                Text("Pro calculates your monthly and yearly recurring costs, highlights your most expensive subscriptions, and breaks down your upcoming renewal pressure.")
+                    .font(.system(size: 14))
+                    .foregroundStyle(AppTheme.textSecondary)
+                    .lineSpacing(2)
+
+                Button("Unlock Pro Insights") {
                     onUpgradeTapped()
                 }
                 .buttonStyle(AppFilledButtonStyle())
+                .padding(.top, 4)
                 .accessibilityIdentifier("insights_upgrade")
             }
             .appCardStyle(padding: 22, radius: 24)
 
-            analyticsCard(title: "Preview") {
-                metricRow(label: "Total tracked items", value: "\(activeItems.count)")
-                metricRow(label: "Due in next 30 days", value: "\(ItemAnalytics.dueInNext(days: 30, items: items))")
-                metricRow(label: "Recurring monthly total", value: "Pro")
-                metricRow(label: "Highest recurring cost", value: "Pro")
+            analyticsCard(title: "Pro Features") {
+                metricRow(label: "Monthly recurring total", value: "Locked")
+                metricRow(label: "Highest recurring cost", value: "Locked")
+                metricRow(label: "Category breakdown", value: "Locked")
+                metricRow(label: "Renewal load this month", value: "Locked")
             }
         }
     }
@@ -74,10 +98,10 @@ struct InsightsView: View {
             quickStatsCard(includePremiumMetrics: true)
 
             analyticsCard(title: "Recurring Costs") {
-                metricRow(label: "Monthly total", value: AppFormatters.currencyString(amount: ItemAnalytics.monthlyRecurringTotal(from: items), currencyCode: Locale.current.currency?.identifier ?? "USD"))
-                metricRow(label: "Yearly total", value: AppFormatters.currencyString(amount: ItemAnalytics.yearlyRecurringTotal(from: items), currencyCode: Locale.current.currency?.identifier ?? "USD"))
-                metricRow(label: "Estimated annual load", value: AppFormatters.currencyString(amount: ItemAnalytics.annualRecurringEstimate(from: items), currencyCode: Locale.current.currency?.identifier ?? "USD"))
-                metricRow(label: "Next 30 days", value: AppFormatters.currencyString(amount: ItemAnalytics.recurringDueInNextThirtyDaysTotal(from: items), currencyCode: Locale.current.currency?.identifier ?? "USD"))
+                metricRow(label: "Monthly total", value: AppFormatters.formatMultiCurrency(totals: ItemAnalytics.monthlyRecurringTotal(from: items), compact: false))
+                metricRow(label: "Yearly total", value: AppFormatters.formatMultiCurrency(totals: ItemAnalytics.yearlyRecurringTotal(from: items), compact: false))
+                metricRow(label: "Estimated annual load", value: AppFormatters.formatMultiCurrency(totals: ItemAnalytics.annualRecurringEstimate(from: items), compact: false))
+                metricRow(label: "Next 30 days", value: AppFormatters.formatMultiCurrency(totals: ItemAnalytics.recurringDueInNextThirtyDaysTotal(from: items), compact: false))
             }
 
             analyticsCard(title: "Renewal Pressure") {
@@ -137,10 +161,10 @@ struct InsightsView: View {
                 statTile(title: "Due Soon", value: "\(ItemAnalytics.dueSoonItems(from: items).count)")
                 statTile(title: "Expired", value: "\(ItemAnalytics.expiredItems(from: items).count)")
                 statTile(
-                    title: includePremiumMetrics ? "Monthly Total" : "Advanced",
+                    title: includePremiumMetrics ? "Monthly Total" : "Plan",
                     value: includePremiumMetrics
-                        ? AppFormatters.compactCurrencyString(amount: ItemAnalytics.monthlyRecurringTotal(from: items), currencyCode: Locale.current.currency?.identifier ?? "USD")
-                        : "Pro"
+                        ? AppFormatters.formatMultiCurrency(totals: ItemAnalytics.monthlyRecurringTotal(from: items), compact: true)
+                        : "Free"
                 )
             }
         }
@@ -155,7 +179,7 @@ struct InsightsView: View {
                 .font(.system(size: 13))
                 .foregroundStyle(Color.white.opacity(0.74))
             Text(value)
-                .font(.system(size: 24, weight: .bold))
+                .font(.system(size: 20, weight: .bold))
                 .foregroundStyle(Color.white)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
@@ -181,10 +205,10 @@ struct InsightsView: View {
             Text(label)
                 .font(.system(size: 15))
                 .foregroundStyle(AppTheme.textSecondary)
-            Spacer()
+            Spacer(minLength: 16)
             Text(value)
-                .font(.system(size: 17, weight: .semibold))
-                .foregroundStyle(AppTheme.textPrimary)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(value == "Locked" ? AppTheme.textMuted : AppTheme.textPrimary)
                 .multilineTextAlignment(.trailing)
         }
     }
@@ -207,6 +231,6 @@ struct InsightsView: View {
             return "No recurring costs"
         }
 
-        return "\(item.title) • \(AppFormatters.currencyString(amount: amount, currencyCode: item.currencyCode))"
+        return "\(item.title) (\(AppFormatters.currencyString(amount: amount, currencyCode: item.currencyCode)))"
     }
 }

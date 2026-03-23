@@ -45,8 +45,7 @@ struct ItemsView: View {
                 } else {
                     searchField
                     categoryFilters
-                    statusFilters
-                    sortHeader
+                    filterSortHeader
 
                     if filteredItems.isEmpty {
                         EmptyStateView(
@@ -56,7 +55,7 @@ struct ItemsView: View {
                         )
                         .padding(.top, 36)
                     } else {
-                        LazyVStack(spacing: 10) {
+                        LazyVStack(spacing: 12) {
                             ForEach(filteredItems, id: \.id) { item in
                                 NavigationLink {
                                     ItemDetailView(item: item)
@@ -149,33 +148,37 @@ struct ItemsView: View {
         }
     }
 
-    private var statusFilters: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                filterChip(label: "Any Status", isSelected: selectedStatus == nil) { selectedStatus = nil }
-                ForEach([ItemStatus.active, .dueSoon, .dueToday, .expired, .archived], id: \.self) { status in
-                    filterChip(label: status.title, isSelected: selectedStatus == status) {
-                        selectedStatus = selectedStatus == status ? nil : status
-                    }
-                }
-            }
-        }
-    }
-
-    private var sortHeader: some View {
+    private var filterSortHeader: some View {
         HStack {
             Text("\(filteredItems.count) \(filteredItems.count == 1 ? "item" : "items")")
                 .font(.system(size: 14))
                 .foregroundStyle(AppTheme.textSecondary)
             Spacer()
             Menu {
-                ForEach(ItemSortOption.allCases) { option in
-                    Button(option.title) { sortOption = option }
+                Section("Status Filter") {
+                    Button(selectedStatus == nil ? "✓ Any Status" : "Any Status") { selectedStatus = nil }
+                    ForEach([ItemStatus.active, .dueSoon, .dueToday, .expired, .archived], id: \.self) { status in
+                        Button(selectedStatus == status ? "✓ \(status.title)" : status.title) {
+                            selectedStatus = selectedStatus == status ? nil : status
+                        }
+                    }
+                }
+                Section("Sort By") {
+                    ForEach(ItemSortOption.allCases) { option in
+                        Button(sortOption == option ? "✓ \(option.title)" : option.title) { sortOption = option }
+                    }
                 }
             } label: {
-                Label("Sort", systemImage: "slider.horizontal.3")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(AppTheme.primary)
+                HStack(spacing: 6) {
+                    Image(systemName: "line.3.horizontal.decrease.circle")
+                    Text("Filter & Sort")
+                }
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(AppTheme.primary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(AppTheme.primary.opacity(0.1))
+                .clipShape(Capsule())
             }
         }
         .padding(.top, 4)

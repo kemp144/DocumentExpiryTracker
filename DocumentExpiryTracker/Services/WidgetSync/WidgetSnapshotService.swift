@@ -37,7 +37,7 @@ enum WidgetSnapshotService {
         let fileURL = containerURL.appendingPathComponent(WidgetSnapshotStore.fileName)
         do {
             let data = try JSONEncoder().encode(payload)
-            try data.write(to: fileURL, options: .atomic)
+            try data.write(to: fileURL, options: [.atomic])
             WidgetCenter.shared.reloadAllTimelines()
         } catch {
             return

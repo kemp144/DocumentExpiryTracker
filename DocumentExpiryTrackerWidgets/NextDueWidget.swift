@@ -21,7 +21,7 @@ struct NextDueEntry: TimelineEntry {
     let item: WidgetItemSnapshot?
     let isProUnlocked: Bool
     let dueSoonCount: Int
-    let monthlyRecurringTotal: Double
+    let monthlyRecurringTotal: [String: Double]
 }
 
 struct NextDueProvider: TimelineProvider {
@@ -39,7 +39,7 @@ struct NextDueProvider: TimelineProvider {
             ),
             isProUnlocked: false,
             dueSoonCount: 2,
-            monthlyRecurringTotal: 15.99
+            monthlyRecurringTotal: ["USD": 15.99]
         )
     }
 
@@ -55,14 +55,14 @@ struct NextDueProvider: TimelineProvider {
 
     private func loadEntry() -> NextDueEntry {
         guard let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: WidgetSnapshotStore.appGroupIdentifier) else {
-            return NextDueEntry(date: .now, item: nil, isProUnlocked: false, dueSoonCount: 0, monthlyRecurringTotal: 0)
+            return NextDueEntry(date: .now, item: nil, isProUnlocked: false, dueSoonCount: 0, monthlyRecurringTotal: [:])
         }
 
         let fileURL = containerURL.appendingPathComponent(WidgetSnapshotStore.fileName)
         guard let data = try? Data(contentsOf: fileURL),
               let payload = try? JSONDecoder().decode(WidgetSnapshotPayload.self, from: data)
         else {
-            return NextDueEntry(date: .now, item: nil, isProUnlocked: false, dueSoonCount: 0, monthlyRecurringTotal: 0)
+            return NextDueEntry(date: .now, item: nil, isProUnlocked: false, dueSoonCount: 0, monthlyRecurringTotal: [:])
         }
 
         let nextItem = payload.items.sorted { $0.dueDate < $1.dueDate }.first
@@ -120,7 +120,7 @@ struct NextDueWidgetEntryView: View {
                         if family == .systemMedium {
                             HStack(spacing: 10) {
                                 statPill(title: "Due soon", value: "\(entry.dueSoonCount)")
-                                statPill(title: "Monthly", value: currencyString(amount: entry.monthlyRecurringTotal))
+                                statPill(title: "Monthly", value: formatMultiCurrency(totals: entry.monthlyRecurringTotal))
                             }
                         } else if let recurringLabel = item.recurringLabel {
                             Text(recurringLabel)
@@ -189,13 +189,26 @@ struct NextDueWidgetEntryView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
-    private func currencyString(amount: Double) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = Locale.current.currency?.identifier ?? "USD"
-        formatter.maximumFractionDigits = 2
-        formatter.minimumFractionDigits = 2
-        return formatter.string(from: NSNumber(value: amount)) ?? "$0.00"
+    private func formatMultiCurrency(totals: [String: Double]) -> String {
+        if totals.isEmpty {
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .currency
+            formatter.currencyCode = Locale.current.currency?.identifier ?? "USD"
+            formatter.maximumFractionDigits = 0
+            formatter.minimumFractionDigits = 0
+            return formatter.string(from: 0) ?? "$0"
+        }
+        let sortedKeys = totals.keys.sorted()
+        let parts = sortedKeys.compactMap { code -> String? in
+            let amount = totals[code]!
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .currency
+            formatter.currencyCode = code
+            formatter.maximumFractionDigits = 0
+            formatter.minimumFractionDigits = 0
+            return formatter.string(from: NSNumber(value: amount))
+        }
+        return parts.joined(separator: " + ")
     }
 }
 
